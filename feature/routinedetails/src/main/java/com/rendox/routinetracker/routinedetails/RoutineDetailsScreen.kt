@@ -1,14 +1,20 @@
 package com.rendox.routinetracker.routinedetails
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -22,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rendox.routinetracker.core.domain.completionhistory.InsertHabitCompletionUseCase.IllegalDateEditAttemptException
 import com.rendox.routinetracker.core.model.Habit
@@ -93,12 +100,72 @@ internal fun RoutineDetailsRoute(
         currentStreakDurationInDays = currentStreakDurationInDays,
         longestStreakDurationInDays = longestStreakDurationInDays,
         onDeleteHabit = viewModel::onDeleteHabit,
+        onEditHabit = viewModel::onEditHabit,
         onScrolledToNewMonth = viewModel::onScrolledToNewMonth,
         insertCompletion = viewModel::onHabitComplete,
     )
 
     BackHandler {
         navigateBack()
+    }
+}
+
+@Composable
+private fun EditHabitDialog(
+    modifier: Modifier = Modifier,
+    dialogIsVisible: Boolean,
+    initialName: String,
+    initialDescription: String?,
+    onDismissRequest: () -> Unit,
+    onConfirm: (name: String, description: String?) -> Unit,
+) {
+    if (dialogIsVisible) {
+        var name by rememberSaveable { mutableStateOf(initialName) }
+        var description by rememberSaveable { mutableStateOf(initialDescription ?: "") }
+
+        AlertDialog(
+            modifier = modifier,
+            onDismissRequest = onDismissRequest,
+            title = {
+                Text(text = "Edit Routine")
+            },
+            text = {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedTextField(
+                        value = name,
+                        onValueChange = { name = it },
+                        label = { Text("Routine Name") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    OutlinedTextField(
+                        value = description,
+                        onValueChange = { description = it },
+                        label = { Text("Description (Optional)") },
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismissRequest) {
+                    Text(text = stringResource(id = android.R.string.cancel))
+                }
+            },
+            confirmButton = {
+                FilledTonalButton(
+                    onClick = {
+                        if (name.isNotBlank()) {
+                            onConfirm(name.trim(), description.trim().ifEmpty { null })
+                            onDismissRequest()
+                        }
+                    },
+                    enabled = name.isNotBlank(),
+                ) {
+                    Text(text = "Save")
+                }
+            },
+        )
     }
 }
 
@@ -144,6 +211,7 @@ internal fun RoutineDetailsScreen(
     habit: Habit?,
     navigateBack: () -> Unit,
     onDeleteHabit: () -> Unit,
+    onEditHabit: (name: String, description: String?) -> Unit,
     snackbarHostState: SnackbarHostState,
     routineCalendarDates: Map<LocalDate, CalendarDateData>,
     initialMonth: YearMonth,
@@ -171,6 +239,15 @@ internal fun RoutineDetailsScreen(
         },
     )
 
+    var editHabitDialogIsShown by rememberSaveable { mutableStateOf(false) }
+    EditHabitDialog(
+        dialogIsVisible = editHabitDialogIsShown,
+        initialName = habit?.name ?: "",
+        initialDescription = habit?.description,
+        onDismissRequest = { editHabitDialogIsShown = false },
+        onConfirm = onEditHabit,
+    )
+
     CollapsingToolbarScaffold(
         modifier = modifier.fillMaxSize(),
         toolbar = {
@@ -186,6 +263,14 @@ internal fun RoutineDetailsScreen(
                     }
                 },
                 actions = {
+                    IconButton(
+                        onClick = { editHabitDialogIsShown = true },
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Edit Routine",
+                        )
+                    }
                     IconButton(
                         onClick = { deleteHabitDialogIsShown = true },
                     ) {

@@ -11,4 +11,5 @@ interface HabitLocalDataSource {
     suspend fun getAllOngoingHabits(currentDate: LocalDate): List<Habit>
     suspend fun checkIfIsEmpty(): Boolean
     suspend fun deleteHabitById(habitId: Long)
+    suspend fun updateHabitNameAndDescription(habitId: Long, name: String, description: String?)
 }

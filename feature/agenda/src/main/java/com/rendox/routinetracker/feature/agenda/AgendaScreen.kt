@@ -16,6 +16,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -42,6 +43,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rendox.routinetracker.core.domain.completionhistory.InsertHabitCompletionUseCase.IllegalDateEditAttemptException
 import com.rendox.routinetracker.core.model.Habit
 import com.rendox.routinetracker.core.ui.components.CompletionCelebration
+import com.rendox.routinetracker.core.ui.components.SettingsDialog
 import com.rendox.routinetracker.core.ui.helpers.LocalLocale
 import com.rendox.routinetracker.core.ui.helpers.ObserveUiEvent
 import com.rendox.routinetracker.feature.agenda.databinding.AgendaRecyclerviewBinding
@@ -125,6 +127,7 @@ internal fun AgendaScreen(
 ) {
     val locale = LocalLocale.current
     var celebrationTriggered by remember { mutableStateOf(false) }
+    var showSettingsDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -154,6 +157,7 @@ internal fun AgendaScreen(
                 },
                 showAllRoutines = showAllRoutines,
                 onNotDueRoutinesVisibilityToggle = onNotDueRoutinesVisibilityToggle,
+                onSettingsClick = { showSettingsDialog = true },
             )
 
             Column(
@@ -229,6 +233,12 @@ internal fun AgendaScreen(
                 isTriggered = celebrationTriggered,
                 onAnimationEnd = { celebrationTriggered = false },
             )
+
+            if (showSettingsDialog) {
+                SettingsDialog(
+                    onDismissRequest = { showSettingsDialog = false },
+                )
+            }
         }
     }
 }
@@ -239,6 +249,7 @@ private fun AgendaTopAppBar(
     title: String,
     showAllRoutines: Boolean,
     onNotDueRoutinesVisibilityToggle: () -> Unit,
+    onSettingsClick: () -> Unit,
 ) {
     Row(
         modifier = modifier
@@ -253,7 +264,7 @@ private fun AgendaTopAppBar(
             style = MaterialTheme.typography.titleLarge,
         )
         IconButton(
-            modifier = Modifier.padding(end = 4.dp),
+            modifier = Modifier.padding(end = 2.dp),
             onClick = onNotDueRoutinesVisibilityToggle,
         ) {
             if (showAllRoutines) {
@@ -271,6 +282,16 @@ private fun AgendaTopAppBar(
                     ),
                 )
             }
+        }
+        IconButton(
+            modifier = Modifier.padding(end = 8.dp),
+            onClick = onSettingsClick,
+        ) {
+            Icon(
+                imageVector = Icons.Default.Settings,
+                contentDescription = "Settings",
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }

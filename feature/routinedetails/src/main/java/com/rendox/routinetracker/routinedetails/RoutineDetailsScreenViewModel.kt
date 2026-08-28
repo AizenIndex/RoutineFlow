@@ -9,6 +9,7 @@ import com.rendox.routinetracker.core.domain.completionhistory.InsertHabitComple
 import com.rendox.routinetracker.core.domain.completionhistory.InsertHabitCompletionUseCase.IllegalDateEditAttemptException
 import com.rendox.routinetracker.core.domain.di.DeleteHabitUseCase
 import com.rendox.routinetracker.core.domain.di.GetHabitUseCase
+import com.rendox.routinetracker.core.domain.di.UpdateHabitUseCase
 import com.rendox.routinetracker.core.domain.streak.GetStreaksInPeriodUseCase
 import com.rendox.routinetracker.core.domain.streak.stats.GetCurrentStreakUseCase
 import com.rendox.routinetracker.core.domain.streak.stats.GetLongestStreakUseCase
@@ -39,6 +40,7 @@ class RoutineDetailsScreenViewModel(
     private val getHabitCompletionData: GetHabitCompletionDataUseCase,
     private val insertHabitCompletion: InsertHabitCompletionUseCase,
     private val deleteHabit: DeleteHabitUseCase,
+    private val updateHabit: UpdateHabitUseCase,
     private val getCurrentStreak: GetCurrentStreakUseCase,
     private val getLongestStreak: GetLongestStreakUseCase,
     private val getStreaksInPeriod: GetStreaksInPeriodUseCase,
@@ -181,6 +183,14 @@ class RoutineDetailsScreenViewModel(
                     _navigateBackEvent.update { null }
                 }
             }
+        }
+    }
+
+    fun onEditHabit(name: String, description: String?) = viewModelScope.launch {
+        _habitFlow.value?.let { habit ->
+            updateHabit(habit.id!!, name, description)
+            val updated = getHabit(habit.id!!)
+            _habitFlow.update { updated }
         }
     }
 

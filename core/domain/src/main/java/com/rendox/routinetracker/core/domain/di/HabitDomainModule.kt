@@ -16,8 +16,13 @@ val habitDomainModule = module {
     single {
         DeleteHabitUseCase(get<HabitRepository>()::deleteHabit)
     }
+
+    single {
+        UpdateHabitUseCase(get<HabitRepository>()::updateHabitNameAndDescription)
+    }
 }
 
 fun interface InsertHabitUseCase : suspend (Habit) -> Unit
 fun interface GetHabitUseCase : suspend (Long) -> Habit
 fun interface DeleteHabitUseCase : suspend (Long) -> Unit
+fun interface UpdateHabitUseCase : suspend (Long, String, String?) -> Unit

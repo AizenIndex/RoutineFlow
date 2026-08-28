@@ -16,4 +16,5 @@ interface HabitRepository {
     suspend fun getAllOngoingHabits(currentDate: LocalDate): List<Habit>
     suspend fun getAllHabits(): List<Habit>
     suspend fun deleteHabit(id: Long)
+    suspend fun updateHabitNameAndDescription(id: Long, name: String, description: String?)
 }

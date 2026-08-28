@@ -38,3 +38,8 @@ SELECT COUNT(id) FROM habitEntity;
 deleteHabitById:
 DELETE FROM habitEntity
 WHERE id = ?;
+
+updateHabitNameAndDescription:
+UPDATE habitEntity
+SET name = :name, description = :description
+WHERE id = :id;

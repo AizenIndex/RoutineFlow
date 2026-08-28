@@ -12,6 +12,7 @@ val routineDetailsModule = module {
             getHabitCompletionData = get(),
             insertHabitCompletion = get(),
             deleteHabit = get(),
+            updateHabit = get(),
             getCurrentStreak = get(),
             getLongestStreak = get(),
             getStreaksInPeriod = get(),

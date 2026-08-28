@@ -25,4 +25,8 @@ class HabitRepositoryImpl(
     override suspend fun deleteHabit(id: Long) {
         localDataSource.deleteHabitById(id)
     }
+
+    override suspend fun updateHabitNameAndDescription(id: Long, name: String, description: String?) {
+        localDataSource.updateHabitNameAndDescription(id, name, description)
+    }
 }

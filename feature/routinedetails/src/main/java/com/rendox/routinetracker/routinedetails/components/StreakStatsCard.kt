@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -31,6 +30,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.rendox.routinetracker.core.model.dueOrCompletedStatuses
+import com.rendox.routinetracker.core.model.streakCreatorStatuses
 import com.rendox.routinetracker.routinedetails.CalendarDateData
 import kotlinx.datetime.LocalDate
 
@@ -47,9 +48,12 @@ fun StreakStatsCard(
     longestStreakDurationInDays: Int,
     routineCalendarDates: Map<LocalDate, CalendarDateData>,
 ) {
-    // Calculate total completed dates in loaded calendar
-    val totalCompletions = routineCalendarDates.values.count { it.numOfTimesCompleted > 0f }
-    val totalDueDays = routineCalendarDates.values.count { it.isScheduled }
+    val totalCompletions = routineCalendarDates.values.count {
+        it.status in streakCreatorStatuses || it.numOfTimesCompleted > 0f
+    }
+    val totalDueDays = routineCalendarDates.values.count {
+        it.status in dueOrCompletedStatuses
+    }
     val consistencyRate = if (totalDueDays > 0) {
         ((totalCompletions.toFloat() / totalDueDays.toFloat()) * 100f).coerceIn(0f, 100f)
     } else if (totalCompletions > 0) {

@@ -88,4 +88,16 @@ class HabitLocalDataSourceImpl(
     override suspend fun deleteHabitById(habitId: Long) = withContext(ioDispatcher) {
         db.habitEntityQueries.deleteHabitById(habitId)
     }
+
+    override suspend fun updateHabitNameAndDescription(
+        habitId: Long,
+        name: String,
+        description: String?,
+    ) = withContext(ioDispatcher) {
+        db.habitEntityQueries.updateHabitNameAndDescription(
+            name = name,
+            description = description,
+            id = habitId,
+        )
+    }
 }
