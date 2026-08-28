@@ -33,6 +33,7 @@ import com.rendox.routinetracker.core.model.Schedule
 import com.rendox.routinetracker.core.ui.helpers.LocalLocale
 import com.rendox.routinetracker.feature.routinedetails.R
 import com.rendox.routinetracker.routinedetails.CalendarDateData
+import com.rendox.routinetracker.routinedetails.components.StreakStatsCard
 import java.time.YearMonth
 import java.time.temporal.WeekFields
 import kotlinx.datetime.Clock
@@ -153,6 +154,12 @@ private fun RoutineCalendarScreenPortrait(
                 currentStreakDurationInDaysString = currentStreakDurationInDaysString,
             )
         }
+        Spacer(modifier = Modifier.height(16.dp))
+        StreakStatsCard(
+            currentStreakDurationInDays = currentStreakDurationInDays,
+            longestStreakDurationInDays = longestStreakDurationInDays,
+            routineCalendarDates = routineCalendarDates,
+        )
         Spacer(modifier = Modifier.height(48.dp))
     }
 }
@@ -186,11 +193,17 @@ private fun RoutineCalendarScreenLandscape(
                 currentStreakDurationInDays = currentStreakDurationInDays,
                 currentStreakDurationInDaysString = currentStreakDurationInDaysString,
             )
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
             LongestStreakCard(
                 modifier = Modifier.fillMaxWidth(),
                 longestStreakDurationInDays = longestStreakDurationInDays,
                 longestStreakDurationInDaysString = longestStreakDurationInDaysString,
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            StreakStatsCard(
+                currentStreakDurationInDays = currentStreakDurationInDays,
+                longestStreakDurationInDays = longestStreakDurationInDays,
+                routineCalendarDates = routineCalendarDates,
             )
         }
     }

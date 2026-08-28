@@ -27,7 +27,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -39,6 +41,7 @@ import androidx.compose.ui.viewinterop.AndroidViewBinding
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rendox.routinetracker.core.domain.completionhistory.InsertHabitCompletionUseCase.IllegalDateEditAttemptException
 import com.rendox.routinetracker.core.model.Habit
+import com.rendox.routinetracker.core.ui.components.CompletionCelebration
 import com.rendox.routinetracker.core.ui.helpers.LocalLocale
 import com.rendox.routinetracker.core.ui.helpers.ObserveUiEvent
 import com.rendox.routinetracker.feature.agenda.databinding.AgendaRecyclerviewBinding
@@ -121,6 +124,7 @@ internal fun AgendaScreen(
     onNotDueRoutinesVisibilityToggle: () -> Unit,
 ) {
     val locale = LocalLocale.current
+    var celebrationTriggered by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -177,8 +181,12 @@ internal fun AgendaScreen(
                     val onStatusCheckmarkClick: (DisplayRoutine) -> Unit = { routine ->
                         when (routine.type) {
                             DisplayRoutineType.YesNoHabit -> {
+                                val isCompleting = routine.numOfTimesCompleted == 0F
                                 val numOfTimesCompleted =
-                                    if (routine.numOfTimesCompleted > 0F) 0F else 1F
+                                    if (isCompleting) 1F else 0F
+                                if (isCompleting) {
+                                    celebrationTriggered = true
+                                }
                                 val completion = Habit.YesNoHabit.CompletionRecord(
                                     date = currentDate.toKotlinLocalDate(),
                                     numOfTimesCompleted = numOfTimesCompleted,
@@ -216,6 +224,11 @@ internal fun AgendaScreen(
                     }
                 }
             }
+
+            CompletionCelebration(
+                isTriggered = celebrationTriggered,
+                onAnimationEnd = { celebrationTriggered = false },
+            )
         }
     }
 }
