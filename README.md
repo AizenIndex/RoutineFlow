@@ -105,7 +105,19 @@ It combines a clean calendar agenda with an intelligent scheduling engine that u
   - 🎨 **Material You**: Dynamic Monet soft pastel dual-tone adaptive icon.
   - 🖤 **AMOLED Black**: Ultra-minimalist pitch black with pure white geometry.
 
-### 🔒 7. 100% Offline & Private
+### 🟩 7. 365-Day Consistency Heatmap *(New)*
+- Year-long 52-week contribution punch card (GitHub-style) in Routine Details visualizing full annual habit consistency.
+- Smooth horizontal panning across the entire past year with automatic completion day counts and color intensity tiers.
+
+### 💾 8. Offline JSON Backup & Restore *(New)*
+- One-tap JSON backup creation & restore via native Android Document Picker.
+- Zero cloud lock-in: Keep complete offline control over your habits, schedules, and history.
+
+### 📳 9. Tactile Haptic Feedback & Home Screen Widget *(New)*
+- **Tactile Haptics**: Subtle mechanical vibrations on checking routines and milestone celebrations.
+- **Home Screen Widget**: Glanceable Android AppWidget displaying today's habits and direct Agenda launcher.
+
+### 🔒 10. 100% Offline & Private
 - **Zero Tracking**: No telemetry, no third-party analytics, no tracking SDKs.
 - **No Account Required**: Works completely offline. Your confidential habit data never leaves your device.
 - **100% Free**: No subscriptions, no ads, and fully open-source under GPL v3.
