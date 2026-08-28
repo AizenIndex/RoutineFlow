@@ -98,7 +98,14 @@ It combines a clean calendar agenda with an intelligent scheduling engine that u
 - **Theme Modes**: Seamless switching between Follow System, Light Mode, and Dark Mode.
 - **Pure Black (AMOLED)**: Pitch `#000000` deep black mode for maximum OLED battery savings.
 
-### 🔒 6. 100% Offline & Private
+### 📱 6. Dynamic App Icon Switcher *(New)*
+- Switch your home screen launcher icon directly inside Settings to match your phone's aesthetic:
+  - 🌊 **Default (Teal)**: Original clean ocean cyan & emerald progress rings.
+  - 🔴 **Nothing / NAM Edition**: Nothing OS dot-matrix progress ring with iconic signature red accent dot (crafted for Nothing / NAM icon pack setups).
+  - 🎨 **Material You**: Dynamic Monet soft pastel dual-tone adaptive icon.
+  - 🖤 **AMOLED Black**: Ultra-minimalist pitch black with pure white geometry.
+
+### 🔒 7. 100% Offline & Private
 - **Zero Tracking**: No telemetry, no third-party analytics, no tracking SDKs.
 - **No Account Required**: Works completely offline. Your confidential habit data never leaves your device.
 - **100% Free**: No subscriptions, no ads, and fully open-source under GPL v3.
