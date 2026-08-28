@@ -1,8 +1,8 @@
-<h1 align="center" style="font-size:32px; line-height:1"><b>Routine Tracker Modern</b></h1>
-<p align="center"><i>A modernized, adaptive habit tracker and routine planner with intelligent streaks, advanced consistency analytics, and celebration micro-interactions.</i></p>
+<h1 align="center" style="font-size:32px; line-height:1"><b>RoutineFlow</b></h1>
+<p align="center"><i>A modernized, adaptive habit tracker and daily routine planner with intelligent streaks, advanced consistency analytics, and celebration micro-interactions.</i></p>
 
 <div align="center">
-  <img alt="Routine Tracker Modern logo" src="images/app_logo.svg" height="150px">
+  <img alt="RoutineFlow logo" src="images/app_logo.svg" height="150px">
 </div>
 
 <br />
