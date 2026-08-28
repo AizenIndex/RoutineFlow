@@ -86,10 +86,17 @@ It combines a clean calendar agenda with an intelligent scheduling engine that u
 - **Clean Agenda View**: Distraction-free daily task lists for any selected date.
 - **Long-term Planning Calendar**: Visual calendar displaying completions, streaks, and future planning dates.
 
-### 🎨 5. Modern Jetpack Compose UI
-- **Material You Design**: Full Material 3 theming with dynamic color palette support on Android 12+.
-- **Pure Dark Mode**: Sleek dark slate and OLED high-contrast aesthetics.
-- **Landscape & Tablet Support**: Optimized multi-column layout for tablets and landscape mode.
+### 🎨 5. Advanced mpvEx-Style Theme Engine *(New)*
+- **Curated Color Palettes**: Choose from iconic developer and designer palettes:
+  - 🌊 **RoutineFlow Teal** (Default brand cyan & emerald)
+  - 🐱 **Catppuccin** (Mocha dark & Latte light pastel vibes)
+  - ❄️ **Nord** (Arctic frost Scandinavian aesthetics)
+  - 🧛 **Dracula** (High-contrast vampire purple & pink)
+  - 🌆 **Tokyo Night** (Neon cyberpunk dusk)
+  - 🌅 **Sunset Coral** (Warm amber & coral glow)
+  - 🔮 **Material You / Monet** (Wallpaper dynamic colors on Android 12+)
+- **Theme Modes**: Seamless switching between Follow System, Light Mode, and Dark Mode.
+- **Pure Black (AMOLED)**: Pitch `#000000` deep black mode for maximum OLED battery savings.
 
 ### 🔒 6. 100% Offline & Private
 - **Zero Tracking**: No telemetry, no third-party analytics, no tracking SDKs.
