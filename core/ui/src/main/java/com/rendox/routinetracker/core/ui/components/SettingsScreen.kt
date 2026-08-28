@@ -665,7 +665,7 @@ fun SettingsScreen(
             // 5. SUPPORT & SPONSOR (@AizenIndex)
             CategoryCard(
                 title = "Support & Sponsor",
-                subtitle = "UPI, Crypto & GitHub support for @AizenIndex",
+                subtitle = "Support lead maintainer @AizenIndex",
                 icon = Icons.Default.Favorite,
                 isExpanded = expandedCategory == SettingsScreenCategory.SPONSOR,
                 onToggle = {
@@ -681,102 +681,6 @@ fun SettingsScreen(
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-
-                    // UPI Section
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(14.dp))
-                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f), RoundedCornerShape(14.dp)),
-                        shape = RoundedCornerShape(14.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-                    ) {
-                        Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Text(
-                                    text = "🇮🇳 UPI Donation",
-                                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                                )
-                                OutlinedButton(
-                                    onClick = { copyToClipboard("UPI ID", "aizenindex@upi") },
-                                    shape = RoundedCornerShape(8.dp),
-                                    contentPadding = ButtonDefaults.ContentPadding,
-                                ) {
-                                    Text(text = "Copy UPI ID", style = MaterialTheme.typography.labelSmall)
-                                }
-                            }
-                            Text(
-                                text = "UPI ID: aizenindex@upi",
-                                style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontManager.getFontFamily(FontOption.JETBRAINS_MONO)),
-                                color = MaterialTheme.colorScheme.primary,
-                            )
-                        }
-                    }
-
-                    // Crypto Section
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(14.dp))
-                            .border(1.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f), RoundedCornerShape(14.dp)),
-                        shape = RoundedCornerShape(14.dp),
-                        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
-                    ) {
-                        Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                            Text(
-                                text = "🪙 Cryptocurrency Wallets",
-                                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                            )
-
-                            // USDT
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(text = "USDT (TRC20 / BEP20)", style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold))
-                                    Text(
-                                        text = "0x71C...aizen",
-                                        style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontManager.getFontFamily(FontOption.JETBRAINS_MONO)),
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                }
-                                OutlinedButton(
-                                    onClick = { copyToClipboard("USDT Address", "0x71C43405781E2a829631C0c0e5a953e5e4125bB2") },
-                                    shape = RoundedCornerShape(8.dp),
-                                ) {
-                                    Text(text = "Copy", style = MaterialTheme.typography.labelSmall)
-                                }
-                            }
-
-                            // BTC
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(text = "Bitcoin (BTC)", style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold))
-                                    Text(
-                                        text = "bc1q...aizen",
-                                        style = MaterialTheme.typography.labelSmall.copy(fontFamily = FontManager.getFontFamily(FontOption.JETBRAINS_MONO)),
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                }
-                                OutlinedButton(
-                                    onClick = { copyToClipboard("BTC Address", "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh") },
-                                    shape = RoundedCornerShape(8.dp),
-                                ) {
-                                    Text(text = "Copy", style = MaterialTheme.typography.labelSmall)
-                                }
-                            }
-                        }
-                    }
 
                     // GitHub Sponsors
                     FilledTonalButton(
