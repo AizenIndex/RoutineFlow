@@ -118,7 +118,14 @@ It combines a clean calendar agenda with an intelligent scheduling engine that u
 - **Tactile Haptics**: Subtle mechanical vibrations on checking routines and milestone celebrations.
 - **Home Screen Widget**: Glanceable Android AppWidget displaying today's habits and direct Agenda launcher.
 
-### 🔒 10. 100% Offline & Private
+### 🔤 10. Dynamic Font Engine & Custom Typography *(New)*
+- **Preset Font Styles**: Google Sans, Nothing Dotted, Nothing Sans, Samsung One UI, Claude Serif, and Default System.
+- **Custom Font Import**: Load any `.ttf` or `.otf` font file directly from your device storage into RoutineFlow.
+
+### 🗑️ 11. Long-Press Multi-Select Batch Deletion *(New)*
+- Long-press any habit card in the Agenda to trigger Selection Mode with checkboxes, Select All, and batch deletion.
+
+### 🔒 12. 100% Offline & Private
 - **Zero Tracking**: No telemetry, no third-party analytics, no tracking SDKs.
 - **No Account Required**: Works completely offline. Your confidential habit data never leaves your device.
 - **100% Free**: No subscriptions, no ads, and fully open-source under GPL v3.
