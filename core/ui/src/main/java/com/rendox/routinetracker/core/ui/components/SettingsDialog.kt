@@ -5,6 +5,12 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -32,13 +38,11 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -57,6 +61,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -75,6 +80,14 @@ import com.rendox.routinetracker.core.ui.theme.ThemeMode
 import kotlinx.coroutines.launch
 import org.koin.mp.KoinPlatformTools
 
+enum class SettingsCategory {
+    APPEARANCE,
+    APP_ICON,
+    BACKUP,
+    DONATION,
+    ABOUT
+}
+
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SettingsDialog(
@@ -86,6 +99,8 @@ fun SettingsDialog(
     var celebrationFxEnabled by remember { mutableStateOf(true) }
     val themeState by ThemeManager.themeState.collectAsState()
     val currentAppIcon by AppIconManager.currentIcon.collectAsState()
+
+    var expandedCategory by remember { mutableStateOf<SettingsCategory?>(SettingsCategory.APPEARANCE) }
 
     val database = remember {
         try {
@@ -155,7 +170,7 @@ fun SettingsDialog(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
-                                .size(38.dp)
+                                .size(40.dp)
                                 .clip(CircleShape)
                                 .background(MaterialTheme.colorScheme.primaryContainer),
                             contentAlignment = Alignment.Center,
@@ -164,17 +179,24 @@ fun SettingsDialog(
                                 imageVector = Icons.Default.Settings,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                                modifier = Modifier.size(20.dp),
+                                modifier = Modifier.size(22.dp),
                             )
                         }
                         Spacer(modifier = Modifier.width(12.dp))
-                        Text(
-                            text = "Settings",
-                            style = MaterialTheme.typography.titleLarge.copy(
-                                fontWeight = FontWeight.Bold,
-                            ),
-                            color = MaterialTheme.colorScheme.onSurface,
-                        )
+                        Column {
+                            Text(
+                                text = "Settings",
+                                style = MaterialTheme.typography.titleLarge.copy(
+                                    fontWeight = FontWeight.Bold,
+                                ),
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                            Text(
+                                text = "Personalize your RoutineFlow experience",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
                     }
 
                     IconButton(onClick = onDismissRequest) {
@@ -186,236 +208,272 @@ fun SettingsDialog(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(18.dp))
 
                 // ==========================================
-                // SECTION: Appearance & Theme
+                // CATEGORY 1: Appearance & Themes
                 // ==========================================
-                Text(
-                    text = "Appearance & Themes",
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                    ),
-                    color = MaterialTheme.colorScheme.primary,
-                )
+                ClaudeSettingsSection(
+                    icon = Icons.Default.Settings,
+                    title = "Appearance & Themes",
+                    subtitle = "Theme modes, AMOLED black & curated palettes",
+                    isExpanded = expandedCategory == SettingsCategory.APPEARANCE,
+                    onToggle = {
+                        expandedCategory = if (expandedCategory == SettingsCategory.APPEARANCE) null else SettingsCategory.APPEARANCE
+                    },
+                ) {
+                    // Theme Mode Selector
+                    Text(
+                        text = "Theme Mode",
+                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        ThemeMode.entries.forEach { mode ->
+                            val selected = themeState.themeMode == mode
+                            FilterChip(
+                                selected = selected,
+                                onClick = { ThemeManager.setThemeMode(mode) },
+                                label = { Text(text = mode.title, fontSize = 12.sp) },
+                                leadingIcon = if (selected) {
+                                    {
+                                        Icon(
+                                            imageVector = Icons.Default.Check,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(14.dp),
+                                        )
+                                    }
+                                } else null,
+                                modifier = Modifier.weight(1f),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                    selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                ),
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // AMOLED Pitch Black Toggle
+                    SettingsToggleRow(
+                        icon = Icons.Default.Lock,
+                        title = "Pure Black (AMOLED)",
+                        subtitle = "Pitch black backgrounds for OLED displays",
+                        isChecked = themeState.isAmoledBlack,
+                        onCheckedChange = { ThemeManager.setAmoledBlack(it) },
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Color Palette Selector
+                    Text(
+                        text = "Color Palette",
+                        style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        ColorPalette.entries.filter { it.isDynamicAvailable }.forEach { palette ->
+                            val isSelected = themeState.colorPalette == palette
+                            PaletteChip(
+                                palette = palette,
+                                isSelected = isSelected,
+                                onClick = { ThemeManager.setColorPalette(palette) },
+                            )
+                        }
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                // Theme Mode Selector
-                Text(
-                    text = "Theme Mode",
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                // ==========================================
+                // CATEGORY 2: App Icon Style
+                // ==========================================
+                ClaudeSettingsSection(
+                    icon = Icons.Default.Star,
+                    title = "App Icon Style",
+                    subtitle = "Match Nothing / NAM, Material You or AMOLED",
+                    isExpanded = expandedCategory == SettingsCategory.APP_ICON,
+                    onToggle = {
+                        expandedCategory = if (expandedCategory == SettingsCategory.APP_ICON) null else SettingsCategory.APP_ICON
+                    },
                 ) {
-                    ThemeMode.entries.forEach { mode ->
-                        val selected = themeState.themeMode == mode
-                        FilterChip(
-                            selected = selected,
-                            onClick = { ThemeManager.setThemeMode(mode) },
-                            label = { Text(text = mode.title, fontSize = 12.sp) },
-                            leadingIcon = if (selected) {
-                                {
-                                    Icon(
-                                        imageVector = Icons.Default.Check,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(14.dp),
-                                    )
-                                }
-                            } else null,
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        AppIconOption.entries.forEach { option ->
+                            val isSelected = currentAppIcon == option
+                            AppIconSelectionRow(
+                                option = option,
+                                isSelected = isSelected,
+                                onClick = { AppIconManager.setAppIcon(context, option) },
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // ==========================================
+                // CATEGORY 3: Backup & Storage
+                // ==========================================
+                ClaudeSettingsSection(
+                    icon = Icons.Default.Lock,
+                    title = "Backup & Data Storage",
+                    subtitle = "Offline JSON export & import",
+                    isExpanded = expandedCategory == SettingsCategory.BACKUP,
+                    onToggle = {
+                        expandedCategory = if (expandedCategory == SettingsCategory.BACKUP) null else SettingsCategory.BACKUP
+                    },
+                ) {
+                    Text(
+                        text = "Export and import your complete habit schedule and streak history with 100% offline privacy.",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        OutlinedButton(
+                            onClick = {
+                                val timestamp = System.currentTimeMillis()
+                                exportLauncher.launch("routineflow_backup_$timestamp.json")
+                            },
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(12.dp),
-                            colors = FilterChipDefaults.filterChipColors(
-                                selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                                selectedLabelColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        ) {
+                            Text(text = "Export JSON", fontSize = 12.sp)
+                        }
+
+                        OutlinedButton(
+                            onClick = {
+                                importLauncher.launch(arrayOf("application/json", "*/*"))
+                            },
+                            modifier = Modifier.weight(1f),
+                            shape = RoundedCornerShape(12.dp),
+                        ) {
+                            Text(text = "Restore JSON", fontSize = 12.sp)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    SettingsToggleRow(
+                        icon = Icons.Default.Star,
+                        title = "Celebrations & Haptics",
+                        subtitle = "Particle bursts & vibration ticks on check-off",
+                        isChecked = celebrationFxEnabled,
+                        onCheckedChange = { celebrationFxEnabled = it },
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // ==========================================
+                // CATEGORY 4: Support & Sponsor
+                // ==========================================
+                ClaudeSettingsSection(
+                    icon = Icons.Default.Favorite,
+                    title = "Support & Sponsor",
+                    subtitle = "Support lead maintainer @AizenIndex",
+                    isExpanded = expandedCategory == SettingsCategory.DONATION,
+                    onToggle = {
+                        expandedCategory = if (expandedCategory == SettingsCategory.DONATION) null else SettingsCategory.DONATION
+                    },
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        Text(
+                            text = "RoutineFlow is 100% free, privacy-first, and open source with zero ads or tracking. If you love this project, consider supporting its active development!",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(14.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f),
                             ),
-                        )
+                        ) {
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Favorite,
+                                        contentDescription = null,
+                                        tint = Color(0xFFEF4444),
+                                        modifier = Modifier.size(18.dp),
+                                    )
+                                    Text(
+                                        text = "Sponsor AizenIndex",
+                                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                    )
+                                }
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Text(
+                                    text = "Your sponsorship directly supports ongoing feature development, UI/UX polish, and community releases.",
+                                    style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Spacer(modifier = Modifier.height(10.dp))
+                                OutlinedButton(
+                                    onClick = {
+                                        val intent = Intent(
+                                            Intent.ACTION_VIEW,
+                                            Uri.parse("https://github.com/sponsors/AizenIndex"),
+                                        )
+                                        context.startActivity(intent)
+                                    },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(10.dp),
+                                ) {
+                                    Text(text = "💖 GitHub Sponsors", fontSize = 12.sp)
+                                }
+                            }
+                        }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // AMOLED Pitch Black Toggle
-                SettingsToggleRow(
-                    icon = Icons.Default.Lock,
-                    title = "Pure Black (AMOLED)",
-                    subtitle = "Pitch black backgrounds for OLED displays",
-                    isChecked = themeState.isAmoledBlack,
-                    onCheckedChange = { ThemeManager.setAmoledBlack(it) },
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Color Palette Selector
-                Text(
-                    text = "Color Palette",
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                    color = MaterialTheme.colorScheme.onSurface,
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-
-                FlowRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    ColorPalette.entries.filter { it.isDynamicAvailable }.forEach { palette ->
-                        val isSelected = themeState.colorPalette == palette
-                        PaletteChip(
-                            palette = palette,
-                            isSelected = isSelected,
-                            onClick = { ThemeManager.setColorPalette(palette) },
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(18.dp))
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // ==========================================
-                // SECTION: App Icon Style (NAM / Nothing / Material You)
-                // ==========================================
-                Text(
-                    text = "App Icon Style",
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                    ),
-                    color = MaterialTheme.colorScheme.primary,
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                Text(
-                    text = "Change launcher icon to match your home screen aesthetic",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
                 Spacer(modifier = Modifier.height(10.dp))
 
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    AppIconOption.entries.forEach { option ->
-                        val isSelected = currentAppIcon == option
-                        AppIconSelectionRow(
-                            option = option,
-                            isSelected = isSelected,
-                            onClick = { AppIconManager.setAppIcon(context, option) },
-                        )
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(18.dp))
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
-                Spacer(modifier = Modifier.height(16.dp))
-
                 // ==========================================
-                // SECTION: Data Backup & Restore
+                // CATEGORY 5: About RoutineFlow
                 // ==========================================
-                Text(
-                    text = "Backup & Restore",
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                    ),
-                    color = MaterialTheme.colorScheme.primary,
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                Text(
-                    text = "Export and import your offline habits and completion history",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                ClaudeSettingsSection(
+                    icon = Icons.Default.Info,
+                    title = "About RoutineFlow",
+                    subtitle = "Version, maintainers & open-source license",
+                    isExpanded = expandedCategory == SettingsCategory.ABOUT,
+                    onToggle = {
+                        expandedCategory = if (expandedCategory == SettingsCategory.ABOUT) null else SettingsCategory.ABOUT
+                    },
                 ) {
-                    OutlinedButton(
-                        onClick = {
-                            val timestamp = System.currentTimeMillis()
-                            exportLauncher.launch("routineflow_backup_$timestamp.json")
-                        },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(12.dp),
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
-                        Text(text = "Export JSON", fontSize = 12.sp)
-                    }
-
-                    OutlinedButton(
-                        onClick = {
-                            importLauncher.launch(arrayOf("application/json", "*/*"))
-                        },
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(12.dp),
-                    ) {
-                        Text(text = "Restore JSON", fontSize = 12.sp)
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(18.dp))
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // ==========================================
-                // SECTION: Preferences
-                // ==========================================
-                Text(
-                    text = "Preferences",
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                    ),
-                    color = MaterialTheme.colorScheme.primary,
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                SettingsToggleRow(
-                    icon = Icons.Default.Star,
-                    title = "Completion Celebrations",
-                    subtitle = "Particle bursts & haptic ticks on check-off",
-                    isChecked = celebrationFxEnabled,
-                    onCheckedChange = { celebrationFxEnabled = it },
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                SettingsInfoRow(
-                    icon = Icons.Default.Lock,
-                    title = "Privacy & Storage",
-                    subtitle = "100% Offline • Zero Tracking • Local SQLite",
-                )
-
-                Spacer(modifier = Modifier.height(18.dp))
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // ==========================================
-                // SECTION: About & Credits
-                // ==========================================
-                Text(
-                    text = "About RoutineFlow",
-                    style = MaterialTheme.typography.labelLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                    ),
-                    color = MaterialTheme.colorScheme.primary,
-                )
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-                    ),
-                ) {
-                    Column(modifier = Modifier.padding(14.dp)) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -445,34 +503,90 @@ fun SettingsDialog(
                             }
                         }
 
-                        Spacer(modifier = Modifier.height(6.dp))
-
                         Text(
                             text = "A modernized, privacy-first habit planner with adaptive scheduling, custom themes, streak analytics, and offline backups.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
 
-                        Spacer(modifier = Modifier.height(10.dp))
+                        // Maintainer AizenIndex Badge
+                        Surface(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(12.dp))
+                                .clickable {
+                                    val intent = Intent(
+                                        Intent.ACTION_VIEW,
+                                        Uri.parse("https://github.com/AizenIndex"),
+                                    )
+                                    context.startActivity(intent)
+                                }
+                                .border(
+                                    1.dp,
+                                    MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                                    RoundedCornerShape(12.dp),
+                                ),
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(12.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(32.dp)
+                                            .clip(CircleShape)
+                                            .background(MaterialTheme.colorScheme.primary),
+                                        contentAlignment = Alignment.Center,
+                                    ) {
+                                        Text(
+                                            text = "A",
+                                            color = MaterialTheme.colorScheme.onPrimary,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 14.sp,
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Column {
+                                        Text(
+                                            text = "AizenIndex",
+                                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                        )
+                                        Text(
+                                            text = "Lead Maintainer & Modernizer",
+                                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
+                                            color = MaterialTheme.colorScheme.primary,
+                                        )
+                                    }
+                                }
 
+                                Text(
+                                    text = "github.com/AizenIndex ↗",
+                                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+
+                        // Original Creator Attribution
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 imageVector = Icons.Default.Favorite,
                                 contentDescription = null,
                                 tint = Color(0xFFEF4444),
-                                modifier = Modifier.size(16.dp),
+                                modifier = Modifier.size(14.dp),
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = "Original Creator: Daniel Rendox",
-                                style = MaterialTheme.typography.labelMedium.copy(
-                                    fontWeight = FontWeight.SemiBold,
-                                ),
-                                color = MaterialTheme.colorScheme.onSurface,
+                                text = "Original Architecture: Daniel Rendox",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
-
-                        Spacer(modifier = Modifier.height(12.dp))
 
                         OutlinedButton(
                             onClick = {
@@ -491,12 +605,12 @@ fun SettingsDialog(
                                 modifier = Modifier.size(16.dp),
                             )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text(text = "View on GitHub")
+                            Text(text = "View Repository on GitHub")
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(18.dp))
 
                 FilledTonalButton(
                     onClick = onDismissRequest,
@@ -504,6 +618,102 @@ fun SettingsDialog(
                     shape = RoundedCornerShape(14.dp),
                 ) {
                     Text(text = "Done")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ClaudeSettingsSection(
+    icon: ImageVector,
+    title: String,
+    subtitle: String,
+    isExpanded: Boolean,
+    onToggle: () -> Unit,
+    content: @Composable () -> Unit,
+) {
+    val rotation by animateFloatAsState(
+        targetValue = if (isExpanded) 180f else 0f,
+        label = "chevronRotation",
+    )
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .clickable(onClick = onToggle)
+            .border(
+                width = 1.dp,
+                color = if (isExpanded) MaterialTheme.colorScheme.primary.copy(alpha = 0.5f) else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+                shape = RoundedCornerShape(16.dp),
+            ),
+        shape = RoundedCornerShape(16.dp),
+        color = if (isExpanded) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f) else MaterialTheme.colorScheme.surface,
+    ) {
+        Column(modifier = Modifier.padding(14.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Row(
+                    modifier = Modifier.weight(1f),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(34.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(
+                                if (isExpanded) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+                            ),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            tint = if (isExpanded) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(18.dp),
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    Column {
+                        Text(
+                            text = title,
+                            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                            color = if (isExpanded) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                        )
+                        Text(
+                            text = subtitle,
+                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+
+                // Minimalist Chevron Indicator
+                Text(
+                    text = "▼",
+                    fontSize = 10.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.rotate(rotation),
+                )
+            }
+
+            AnimatedVisibility(
+                visible = isExpanded,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut(),
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 14.dp),
+                ) {
+                    content()
                 }
             }
         }
@@ -715,41 +925,5 @@ private fun SettingsToggleRow(
             checked = isChecked,
             onCheckedChange = onCheckedChange,
         )
-    }
-}
-
-@Composable
-private fun SettingsInfoRow(
-    icon: ImageVector,
-    title: String,
-    subtitle: String,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(20.dp),
-        )
-        Spacer(modifier = Modifier.width(12.dp))
-        Column {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontWeight = FontWeight.Medium,
-                ),
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodySmall.copy(fontSize = 12.sp),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
     }
 }
