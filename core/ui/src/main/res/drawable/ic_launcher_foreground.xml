@@ -4,30 +4,32 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    
-    <!-- Outer Glowing Gradient Ring -->
+
+    <!-- Ambient Flow Ribbon Ring -->
     <path
-        android:pathData="M54,20 A34,34 0 1,1 24,66"
-        android:strokeWidth="6"
-        android:strokeLineCap="round">
+        android:pathData="M32,56 C30,42 40,30 55,30 C71,30 80,41 79,56 C78,69 66,78 52,78 C43,78 35,73 31,65"
+        android:strokeWidth="7"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round">
         <aapt:attr name="android:strokeColor">
             <gradient
-                android:startX="20"
-                android:startY="20"
-                android:endX="88"
-                android:endY="88"
+                android:startX="30"
+                android:startY="75"
+                android:endX="80"
+                android:endY="30"
                 android:type="linear">
-                <item android:offset="0.0" android:color="#FF6366F1" />
-                <item android:offset="0.5" android:color="#FF38BDF8" />
-                <item android:offset="1.0" android:color="#FF10B981" />
+                <item android:offset="0.0" android:color="#FF4338CA" />
+                <item android:offset="0.4" android:color="#FF6366F1" />
+                <item android:offset="0.75" android:color="#FF38BDF8" />
+                <item android:offset="1.0" android:color="#FF34D399" />
             </gradient>
         </aapt:attr>
     </path>
 
-    <!-- Modern Checkmark -->
+    <!-- Precise Handcrafted Checkmark -->
     <path
-        android:pathData="M40,54 L49,63 L69,43"
-        android:strokeWidth="6.5"
+        android:pathData="M44,55 L52,63 L69,43"
+        android:strokeWidth="5.5"
         android:strokeColor="#FFFFFFFF"
         android:strokeLineCap="round"
         android:strokeLineJoin="round" />

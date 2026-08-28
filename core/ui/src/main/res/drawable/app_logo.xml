@@ -4,42 +4,33 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    
-    <!-- Outer Glowing Gradient Ring -->
+
+    <!-- Ambient Flow Ribbon Ring -->
     <path
-        android:pathData="M54,14 A40,40 0 1,1 18,68"
-        android:strokeWidth="7"
-        android:strokeLineCap="round">
+        android:pathData="M32,56 C30,42 40,30 55,30 C71,30 80,41 79,56 C78,69 66,78 52,78 C43,78 35,73 31,65"
+        android:strokeWidth="7.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round">
         <aapt:attr name="android:strokeColor">
             <gradient
-                android:startX="14"
-                android:startY="14"
-                android:endX="94"
-                android:endY="94"
+                android:startX="30"
+                android:startY="75"
+                android:endX="80"
+                android:endY="30"
                 android:type="linear">
-                <item android:offset="0.0" android:color="#FF6366F1" />
-                <item android:offset="0.5" android:color="#FF38BDF8" />
-                <item android:offset="1.0" android:color="#FF10B981" />
+                <item android:offset="0.0" android:color="#FF4338CA" />
+                <item android:offset="0.4" android:color="#FF6366F1" />
+                <item android:offset="0.75" android:color="#FF38BDF8" />
+                <item android:offset="1.0" android:color="#FF34D399" />
             </gradient>
         </aapt:attr>
     </path>
 
-    <!-- Modern Checkmark -->
+    <!-- Precise Handcrafted Checkmark -->
     <path
-        android:pathData="M38,54 L49,65 L72,40"
-        android:strokeWidth="7.5"
+        android:pathData="M44,55 L52,63 L69,43"
+        android:strokeWidth="6"
         android:strokeColor="#FFFFFFFF"
         android:strokeLineCap="round"
         android:strokeLineJoin="round" />
-
-    <!-- Accent Dots -->
-    <path
-        android:pathData="M72,40 m-2.5,0 a2.5,2.5 0 1,1 5,0 a2.5,2.5 0 1,1 -5,0"
-        android:fillColor="#FF38BDF8" />
-    <path
-        android:pathData="M38,54 m-2,0 a2,2 0 1,1 4,0 a2,2 0 1,1 -4,0"
-        android:fillColor="#FF6366F1" />
-    <path
-        android:pathData="M49,65 m-2.2,0 a2.2,2.2 0 1,1 4.4,0 a2.2,2.2 0 1,1 -4.4,0"
-        android:fillColor="#FF10B981" />
 </vector>
