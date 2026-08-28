@@ -40,15 +40,16 @@
 
 You can install RoutineFlow directly on your Android device without needing the Google Play Store:
 
-### 📦 Latest Release: **[v1.0.0](https://github.com/AizenIndex/RoutineFlow/releases/tag/v1.0.0)**
+### 📦 Latest Release: **[v1.1.0](https://github.com/AizenIndex/RoutineFlow/releases/tag/v1.1.0)** *(Latest)*
 
-| File | Type | Download Link |
+| File | Version | Download Link |
 | :--- | :--- | :--- |
-| **`RoutineFlow-v1.0.0.apk`** | Android Application Package | [⬇️ **Download APK**](https://github.com/AizenIndex/RoutineFlow/releases/download/v1.0.0/RoutineFlow-v1.0.0.apk) |
-| **Source Code** | Archive (`.zip` / `.tar.gz`) | [📦 **GitHub Release Page**](https://github.com/AizenIndex/RoutineFlow/releases/tag/v1.0.0) |
+| **`RoutineFlow-v1.1.0.apk`** | **v1.1.0 (Latest)** | [⬇️ **Download v1.1.0 APK**](https://github.com/AizenIndex/RoutineFlow/releases/download/v1.1.0/RoutineFlow-v1.1.0.apk) |
+| **`RoutineFlow-v1.0.0.apk`** | v1.0.0 | [⬇️ Download v1.0.0 APK](https://github.com/AizenIndex/RoutineFlow/releases/download/v1.0.0/RoutineFlow-v1.0.0.apk) |
+| **All Releases** | Archives & Notes | [📦 **GitHub Releases Hub**](https://github.com/AizenIndex/RoutineFlow/releases) |
 
 > **💡 How to Install:**
-> 1. Download `RoutineFlow-v1.0.0.apk` to your Android phone.
+> 1. Download `RoutineFlow-v1.1.0.apk` to your Android phone.
 > 2. Open the file from your downloads folder.
 > 3. If prompted, enable *"Install from unknown sources"* for your browser/file manager.
 > 4. Tap **Install** and launch RoutineFlow!
