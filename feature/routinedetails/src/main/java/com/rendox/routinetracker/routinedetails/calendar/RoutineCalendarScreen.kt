@@ -41,6 +41,9 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.todayIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import com.rendox.routinetracker.routinedetails.components.YearlyHeatmapCard
 
 @Composable
 fun RoutineCalendarScreen(
@@ -123,7 +126,9 @@ private fun RoutineCalendarScreenPortrait(
     onScrolledToNewMonth: (YearMonth) -> Unit,
     onDateClick: (LocalDate) -> Unit,
 ) {
-    Column(modifier = modifier) {
+    Column(
+        modifier = modifier.verticalScroll(rememberScrollState()),
+    ) {
         RoutineCalendar(
             modifier = Modifier.padding(bottom = 24.dp),
             initialMonth = initialMonth,
@@ -158,6 +163,10 @@ private fun RoutineCalendarScreenPortrait(
         StreakStatsCard(
             currentStreakDurationInDays = currentStreakDurationInDays,
             longestStreakDurationInDays = longestStreakDurationInDays,
+            routineCalendarDates = routineCalendarDates,
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        YearlyHeatmapCard(
             routineCalendarDates = routineCalendarDates,
         )
         Spacer(modifier = Modifier.height(48.dp))

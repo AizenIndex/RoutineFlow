@@ -2,6 +2,9 @@ package com.rendox.routinetracker.core.ui.components
 
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -29,6 +32,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledTonalButton
@@ -48,6 +52,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -59,11 +64,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.rendox.routinetracker.core.data.backup.BackupManager
+import com.rendox.routinetracker.core.database.RoutineTrackerDatabase
+import com.rendox.routinetracker.core.ui.helpers.HapticsHelper
 import com.rendox.routinetracker.core.ui.theme.AppIconManager
 import com.rendox.routinetracker.core.ui.theme.AppIconOption
 import com.rendox.routinetracker.core.ui.theme.ColorPalette
 import com.rendox.routinetracker.core.ui.theme.ThemeManager
 import com.rendox.routinetracker.core.ui.theme.ThemeMode
+import kotlinx.coroutines.launch
+import org.koin.mp.KoinPlatformTools
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -72,9 +82,50 @@ fun SettingsDialog(
     onDismissRequest: () -> Unit,
 ) {
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
     var celebrationFxEnabled by remember { mutableStateOf(true) }
     val themeState by ThemeManager.themeState.collectAsState()
     val currentAppIcon by AppIconManager.currentIcon.collectAsState()
+
+    val database = remember {
+        try {
+            KoinPlatformTools.defaultContext().get().get<RoutineTrackerDatabase>()
+        } catch (_: Exception) {
+            null
+        }
+    }
+
+    val exportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("application/json"),
+    ) { uri ->
+        if (uri != null && database != null) {
+            coroutineScope.launch {
+                val result = BackupManager.exportBackup(context, database, uri)
+                if (result.isSuccess) {
+                    HapticsHelper.performCelebration(context)
+                    Toast.makeText(context, "✅ Backup exported successfully!", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "❌ Export failed: ${result.exceptionOrNull()?.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    val importLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+    ) { uri ->
+        if (uri != null && database != null) {
+            coroutineScope.launch {
+                val result = BackupManager.importBackup(context, database, uri)
+                if (result.isSuccess) {
+                    HapticsHelper.performCelebration(context)
+                    Toast.makeText(context, "✅ Restored ${result.getOrNull()} items successfully!", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(context, "❌ Import failed: ${result.exceptionOrNull()?.message}", Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
 
     LaunchedEffect(Unit) {
         AppIconManager.init(context)
@@ -264,6 +315,54 @@ fun SettingsDialog(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // ==========================================
+                // SECTION: Data Backup & Restore
+                // ==========================================
+                Text(
+                    text = "Backup & Restore",
+                    style = MaterialTheme.typography.labelLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                    ),
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = "Export and import your offline habits and completion history",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    OutlinedButton(
+                        onClick = {
+                            val timestamp = System.currentTimeMillis()
+                            exportLauncher.launch("routineflow_backup_$timestamp.json")
+                        },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp),
+                    ) {
+                        Text(text = "Export JSON", fontSize = 12.sp)
+                    }
+
+                    OutlinedButton(
+                        onClick = {
+                            importLauncher.launch(arrayOf("application/json", "*/*"))
+                        },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp),
+                    ) {
+                        Text(text = "Restore JSON", fontSize = 12.sp)
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(18.dp))
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // ==========================================
                 // SECTION: Preferences
                 // ==========================================
                 Text(
@@ -279,7 +378,7 @@ fun SettingsDialog(
                 SettingsToggleRow(
                     icon = Icons.Default.Star,
                     title = "Completion Celebrations",
-                    subtitle = "Particle bursts on habit check-off",
+                    subtitle = "Particle bursts & haptic ticks on check-off",
                     isChecked = celebrationFxEnabled,
                     onCheckedChange = { celebrationFxEnabled = it },
                 )
@@ -323,7 +422,7 @@ fun SettingsDialog(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Text(
-                                text = "RoutineFlow v1.0.0",
+                                text = "RoutineFlow v1.1.0",
                                 style = MaterialTheme.typography.titleMedium.copy(
                                     fontWeight = FontWeight.Bold,
                                 ),
@@ -349,7 +448,7 @@ fun SettingsDialog(
                         Spacer(modifier = Modifier.height(6.dp))
 
                         Text(
-                            text = "A modernized, privacy-first habit planner with adaptive scheduling, custom themes, and streak analytics.",
+                            text = "A modernized, privacy-first habit planner with adaptive scheduling, custom themes, streak analytics, and offline backups.",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
