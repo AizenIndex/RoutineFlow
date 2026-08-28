@@ -57,6 +57,12 @@ enum class ColorPalette(
         previewSecondary = Color(0xFFBB9AF7),
         previewTertiary = Color(0xFF7DCFFF),
     ),
+    MONOCHROME(
+        title = "Monochrome",
+        previewPrimary = Color(0xFFE0E0E0),
+        previewSecondary = Color(0xFF757575),
+        previewTertiary = Color(0xFF212121),
+    ),
     SUNSET_CORAL(
         title = "Sunset Coral",
         previewPrimary = Color(0xFFFF6B6B),

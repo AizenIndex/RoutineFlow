@@ -4,8 +4,6 @@ import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -26,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Settings
@@ -51,6 +50,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -60,7 +60,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rendox.routinetracker.core.domain.completionhistory.InsertHabitCompletionUseCase.IllegalDateEditAttemptException
 import com.rendox.routinetracker.core.model.Habit
 import com.rendox.routinetracker.core.ui.components.CompletionCelebration
-import com.rendox.routinetracker.core.ui.components.SettingsDialog
+import com.rendox.routinetracker.core.ui.components.SettingsScreen
+import com.rendox.routinetracker.core.ui.helpers.HapticsHelper
 import com.rendox.routinetracker.core.ui.helpers.LocalLocale
 import com.rendox.routinetracker.core.ui.helpers.ObserveUiEvent
 import java.time.LocalDate
@@ -146,14 +147,22 @@ internal fun AgendaScreen(
     onDateChange: (LocalDate) -> Unit,
     onNotDueRoutinesVisibilityToggle: () -> Unit,
 ) {
+    val context = LocalContext.current
     val locale = LocalLocale.current
     var celebrationTriggered by remember { mutableStateOf(false) }
-    var showSettingsDialog by remember { mutableStateOf(false) }
+    var showSettingsScreen by remember { mutableStateOf(false) }
 
     // Multi-Selection State
     var isSelectionMode by remember { mutableStateOf(false) }
     var selectedRoutineIds by remember { mutableStateOf(setOf<Long>()) }
     var showDeleteConfirmDialog by remember { mutableStateOf(false) }
+
+    if (showSettingsScreen) {
+        SettingsScreen(
+            onBackClick = { showSettingsScreen = false },
+        )
+        return
+    }
 
     val totalRoutines = routineList?.size ?: 0
     val completedRoutines = routineList?.count { it.numOfTimesCompleted > 0f } ?: 0
@@ -211,7 +220,7 @@ internal fun AgendaScreen(
             AgendaTopAppBar(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(76.dp),
+                    .height(78.dp),
                 greeting = greeting,
                 title = formattedDate,
                 totalRoutines = totalRoutines,
@@ -221,7 +230,7 @@ internal fun AgendaScreen(
                 isSelectionMode = isSelectionMode,
                 selectedCount = selectedRoutineIds.size,
                 onNotDueRoutinesVisibilityToggle = onNotDueRoutinesVisibilityToggle,
-                onSettingsClick = { showSettingsDialog = true },
+                onSettingsClick = { showSettingsScreen = true },
                 onCancelSelection = {
                     isSelectionMode = false
                     selectedRoutineIds = emptySet()
@@ -243,7 +252,7 @@ internal fun AgendaScreen(
             ) {
                 Spacer(
                     modifier = Modifier
-                        .height(76.dp)
+                        .height(78.dp)
                         .systemBarsPadding(),
                 )
 
@@ -266,8 +275,13 @@ internal fun AgendaScreen(
                                 val isCompleting = routine.numOfTimesCompleted == 0F
                                 val numOfTimesCompleted =
                                     if (isCompleting) 1F else 0F
+
+                                // Trigger tactile mechanical haptic feedback
+                                HapticsHelper.performClick(context)
+
                                 if (isCompleting) {
                                     celebrationTriggered = true
+                                    HapticsHelper.performCelebration(context)
                                 }
                                 val completion = Habit.YesNoHabit.CompletionRecord(
                                     date = currentDate.toKotlinLocalDate(),
@@ -289,6 +303,7 @@ internal fun AgendaScreen(
                             selectedRoutineIds = selectedRoutineIds,
                             onRoutineClick = onRoutineClick,
                             onRoutineLongClick = { routineId ->
+                                HapticsHelper.performClick(context)
                                 isSelectionMode = true
                                 selectedRoutineIds = if (selectedRoutineIds.contains(routineId)) {
                                     selectedRoutineIds - routineId
@@ -312,7 +327,7 @@ internal fun AgendaScreen(
                             .weight(1f),
                         contentAlignment = Alignment.Center,
                     ) {
-                        val smallTopAppBarHeight = 76.dp
+                        val smallTopAppBarHeight = 78.dp
                         NothingScheduled(
                             modifier = Modifier.padding(
                                 bottom = when (LocalConfiguration.current.orientation) {
@@ -354,12 +369,6 @@ internal fun AgendaScreen(
                             Text(text = "Cancel")
                         }
                     },
-                )
-            }
-
-            if (showSettingsDialog) {
-                SettingsDialog(
-                    onDismissRequest = { showSettingsDialog = false },
                 )
             }
         }
@@ -438,10 +447,26 @@ private fun AgendaTopAppBar(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
+                            // Stylized Brand Emblem & Typography Header
+                            Surface(
+                                modifier = Modifier.size(24.dp),
+                                shape = RoundedCornerShape(7.dp),
+                                color = MaterialTheme.colorScheme.primary,
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        imageVector = Icons.Default.Check,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onPrimary,
+                                        modifier = Modifier.size(15.dp),
+                                    )
+                                }
+                            }
+
                             Text(
                                 text = "RoutineFlow",
                                 style = MaterialTheme.typography.titleLarge.copy(
-                                    fontWeight = FontWeight.Bold,
+                                    fontWeight = FontWeight.Black,
                                     letterSpacing = (-0.5).sp,
                                 ),
                                 color = MaterialTheme.colorScheme.primary,
@@ -491,7 +516,7 @@ private fun AgendaTopAppBar(
                         ) {
                             IconButton(
                                 onClick = onNotDueRoutinesVisibilityToggle,
-                                modifier = Modifier.size(36.dp),
+                                modifier = Modifier.size(42.dp),
                             ) {
                                 if (showAllRoutines) {
                                     Icon(
@@ -500,7 +525,7 @@ private fun AgendaTopAppBar(
                                             id = R.string.routine_visibility_icon_toggle_all_visible_description,
                                         ),
                                         tint = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.size(17.dp),
+                                        modifier = Modifier.size(20.dp),
                                     )
                                 } else {
                                     Icon(
@@ -509,7 +534,7 @@ private fun AgendaTopAppBar(
                                             id = R.string.routine_visibility_icon_toggle_some_routines_hidden_description,
                                         ),
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                        modifier = Modifier.size(17.dp),
+                                        modifier = Modifier.size(20.dp),
                                     )
                                 }
                             }
@@ -528,13 +553,13 @@ private fun AgendaTopAppBar(
                         ) {
                             IconButton(
                                 onClick = onSettingsClick,
-                                modifier = Modifier.size(36.dp),
+                                modifier = Modifier.size(42.dp),
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Settings,
                                     contentDescription = "Settings",
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(17.dp),
+                                    modifier = Modifier.size(20.dp),
                                 )
                             }
                         }

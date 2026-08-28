@@ -32,6 +32,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -44,6 +45,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.rendox.routinetracker.core.ui.theme.FontManager
 import com.rendox.routinetracker.core.model.HabitStatus
 import com.rendox.routinetracker.core.ui.helpers.getStringResourceId
 import com.rendox.routinetracker.core.ui.theme.routineStatusColors
@@ -146,11 +149,13 @@ fun AgendaItem(
                 modifier = Modifier.weight(1f),
                 verticalArrangement = Arrangement.Center,
             ) {
+                val taskFontSize by FontManager.agendaTaskFontSize.collectAsStateWithLifecycle()
+
                 Text(
                     text = routine.name,
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.SemiBold,
-                        fontSize = 20.sp,
+                        fontSize = taskFontSize.sp,
                     ),
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 2,

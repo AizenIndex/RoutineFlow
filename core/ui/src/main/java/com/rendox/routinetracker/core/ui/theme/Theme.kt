@@ -13,6 +13,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rendox.routinetracker.core.ui.helpers.LocalLocale
 import com.rendox.routinetracker.core.ui.helpers.getLocale
 
@@ -51,6 +52,7 @@ fun RoutineTrackerTheme(
             ColorPalette.NORD -> if (isDark) NordDarkColors else NordLightColors
             ColorPalette.DRACULA -> if (isDark) DraculaDarkColors else DraculaLightColors
             ColorPalette.TOKYO_NIGHT -> if (isDark) TokyoNightDarkColors else TokyoNightLightColors
+            ColorPalette.MONOCHROME -> if (isDark) MonochromeDarkColors else MonochromeLightColors
             ColorPalette.SUNSET_CORAL -> if (isDark) SunsetCoralDarkColors else SunsetCoralLightColors
         }
     }
@@ -58,11 +60,13 @@ fun RoutineTrackerTheme(
     val finalColors = baseColors.applyAmoledOverride(isDark = isDark, isAmoled = themeState.isAmoledBlack)
     val routineStatusColors = if (isDark) routineStatusColorsDark else routineStatusColorsLight
 
+    val globalFontScale by FontManager.currentGlobalFontScale.collectAsStateWithLifecycle()
+
     val activeFontFamily = remember(fontOption, customFontFamily) {
         FontManager.getFontFamily(fontOption)
     }
-    val dynamicTypography = remember(activeFontFamily) {
-        FontManager.createDynamicTypography(activeFontFamily)
+    val dynamicTypography = remember(activeFontFamily, globalFontScale) {
+        FontManager.createDynamicTypography(activeFontFamily, globalFontScale.scale)
     }
 
     CompositionLocalProvider(

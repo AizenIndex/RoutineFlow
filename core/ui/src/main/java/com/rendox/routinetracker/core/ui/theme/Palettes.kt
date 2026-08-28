@@ -53,187 +53,230 @@ val RoutineFlowDarkColors = darkColorScheme(
 )
 
 // ==========================================
-// 2. CATPPUCCIN (Latte / Mocha)
+// 2. MONOCHROME (Minimal Slate & Grayscale)
+// ==========================================
+val MonochromeLightColors = lightColorScheme(
+    primary = Color(0xFF1E1E1E),
+    onPrimary = Color(0xFFFFFFFF),
+    primaryContainer = Color(0xFFE0E0E0),
+    onPrimaryContainer = Color(0xFF000000),
+    secondary = Color(0xFF424242),
+    onSecondary = Color(0xFFFFFFFF),
+    secondaryContainer = Color(0xFFEEEEEE),
+    onSecondaryContainer = Color(0xFF1E1E1E),
+    tertiary = Color(0xFF616161),
+    onTertiary = Color(0xFFFFFFFF),
+    background = Color(0xFFF5F5F5),
+    onBackground = Color(0xFF121212),
+    surface = Color(0xFFFFFFFF),
+    onSurface = Color(0xFF121212),
+    surfaceVariant = Color(0xFFE5E5E5),
+    onSurfaceVariant = Color(0xFF555555),
+    outline = Color(0xFF9E9E9E),
+)
+
+val MonochromeDarkColors = darkColorScheme(
+    primary = Color(0xFFE0E0E0),
+    onPrimary = Color(0xFF121212),
+    primaryContainer = Color(0xFF2C2C2C),
+    onPrimaryContainer = Color(0xFFF5F5F5),
+    secondary = Color(0xFFBDBDBD),
+    onSecondary = Color(0xFF121212),
+    secondaryContainer = Color(0xFF383838),
+    onSecondaryContainer = Color(0xFFE0E0E0),
+    tertiary = Color(0xFF9E9E9E),
+    onTertiary = Color(0xFF121212),
+    background = Color(0xFF121212),
+    onBackground = Color(0xFFEAEAEA),
+    surface = Color(0xFF1A1A1A),
+    onSurface = Color(0xFFEAEAEA),
+    surfaceVariant = Color(0xFF2A2A2A),
+    onSurfaceVariant = Color(0xFFAAAAAA),
+    outline = Color(0xFF666666),
+)
+
+// ==========================================
+// 3. CATPPUCCIN (Latte / Mocha)
 // ==========================================
 val CatppuccinLightColors = lightColorScheme(
-    primary = Color(0xFF8839EF), // Mauve
+    primary = Color(0xFF8839EF),
     onPrimary = Color(0xFFFFFFFF),
     primaryContainer = Color(0xFFEEDCFF),
-    onPrimaryContainer = Color(0xFF2E004E),
-    secondary = Color(0xFF1E66F5), // Blue
+    onPrimaryContainer = Color(0xFF2C0051),
+    secondary = Color(0xFF1E66F5),
     onSecondary = Color(0xFFFFFFFF),
-    secondaryContainer = Color(0xFFDCE5FF),
-    onSecondaryContainer = Color(0xFF001A41),
-    tertiary = Color(0xFFD20F39), // Red
+    secondaryContainer = Color(0xFFDCE4FF),
+    onSecondaryContainer = Color(0xFF001947),
+    tertiary = Color(0xFFE64553),
     onTertiary = Color(0xFFFFFFFF),
     tertiaryContainer = Color(0xFFFFDAD9),
-    onTertiaryContainer = Color(0xFF410008),
-    background = Color(0xFFEFF1F5), // Base
-    onBackground = Color(0xFF4C4F69), // Text
-    surface = Color(0xFFE6E9EF), // Mantle
+    onTertiaryContainer = Color(0xFF410006),
+    background = Color(0xFFEFF1F5),
+    onBackground = Color(0xFF4C4F69),
+    surface = Color(0xFFE6E9EF),
     onSurface = Color(0xFF4C4F69),
-    surfaceVariant = Color(0xFFCCD0DA), // Surface0
-    onSurfaceVariant = Color(0xFF5C5F77),
+    surfaceVariant = Color(0xFFDCE0E8),
+    onSurfaceVariant = Color(0xFF6C6F85),
     outline = Color(0xFF9CA0B0),
 )
 
 val CatppuccinDarkColors = darkColorScheme(
-    primary = Color(0xFFCBA6F7), // Mauve
+    primary = Color(0xFFCBA6F7),
     onPrimary = Color(0xFF381E72),
     primaryContainer = Color(0xFF4F378B),
     onPrimaryContainer = Color(0xFFEEDCFF),
-    secondary = Color(0xFF89B4FA), // Blue
-    onSecondary = Color(0xFF003063),
-    secondaryContainer = Color(0xFF00478B),
-    onSecondaryContainer = Color(0xFFD6E3FF),
-    tertiary = Color(0xFFF38BA8), // Red
-    onTertiary = Color(0xFF5C0012),
-    tertiaryContainer = Color(0xFF7E1325),
-    onTertiaryContainer = Color(0xFFFFD9DD),
-    background = Color(0xFF181825), // Mantle
-    onBackground = Color(0xFFCDD6F4), // Text
-    surface = Color(0xFF1E1E2E), // Base
+    secondary = Color(0xFF89B4FA),
+    onSecondary = Color(0xFF002F6C),
+    secondaryContainer = Color(0xFF004494),
+    onSecondaryContainer = Color(0xFFDCE4FF),
+    tertiary = Color(0xFFF38BA8),
+    onTertiary = Color(0xFF5C0018),
+    tertiaryContainer = Color(0xFF800025),
+    onTertiaryContainer = Color(0xFFFFDAD9),
+    background = Color(0xFF1E1E2E),
+    onBackground = Color(0xFFCDD6F4),
+    surface = Color(0xFF181825),
     onSurface = Color(0xFFCDD6F4),
-    surfaceVariant = Color(0xFF313244), // Surface0
+    surfaceVariant = Color(0xFF313244),
     onSurfaceVariant = Color(0xFFA6ADC8),
-    outline = Color(0xFF585B70),
+    outline = Color(0xFF6C7086),
 )
 
 // ==========================================
-// 3. NORD
+// 4. NORD (Arctic Frost)
 // ==========================================
 val NordLightColors = lightColorScheme(
-    primary = Color(0xFF5E81AC), // Nord10
+    primary = Color(0xFF5E81AC),
     onPrimary = Color(0xFFFFFFFF),
     primaryContainer = Color(0xFFD8E2FF),
     onPrimaryContainer = Color(0xFF001A41),
-    secondary = Color(0xFF81A1C1), // Nord9
-    onSecondary = Color(0xFFFFFFFF),
-    secondaryContainer = Color(0xFFCEE5FF),
-    onSecondaryContainer = Color(0xFF001D33),
-    tertiary = Color(0xFF88C0D0), // Nord8
-    onTertiary = Color(0xFFFFFFFF),
-    tertiaryContainer = Color(0xFFBAEAFF),
-    onTertiaryContainer = Color(0xFF001F29),
-    background = Color(0xFFECEFF4), // Nord6
-    onBackground = Color(0xFF2E3440), // Nord0
-    surface = Color(0xFFE5E9F0), // Nord5
+    secondary = Color(0xFF88C0D0),
+    onSecondary = Color(0xFF003544),
+    secondaryContainer = Color(0xFFBCE9F5),
+    onSecondaryContainer = Color(0xFF001F29),
+    tertiary = Color(0xFFA3BE8C),
+    onTertiary = Color(0xFF1B370E),
+    tertiaryContainer = Color(0xFFC2E8A6),
+    onTertiaryContainer = Color(0xFF062100),
+    background = Color(0xFFECEFF4),
+    onBackground = Color(0xFF2E3440),
+    surface = Color(0xFFE5E9F0),
     onSurface = Color(0xFF2E3440),
-    surfaceVariant = Color(0xFFD8DEE9), // Nord4
-    onSurfaceVariant = Color(0xFF4C566A), // Nord3
-    outline = Color(0xFF7B889B),
+    surfaceVariant = Color(0xFFD8DEE9),
+    onSurfaceVariant = Color(0xFF4C566A),
+    outline = Color(0xFF7B88A1),
 )
 
 val NordDarkColors = darkColorScheme(
-    primary = Color(0xFF88C0D0), // Nord8
+    primary = Color(0xFF88C0D0),
     onPrimary = Color(0xFF003544),
     primaryContainer = Color(0xFF004D62),
-    onPrimaryContainer = Color(0xFFBAEAFF),
-    secondary = Color(0xFF81A1C1), // Nord9
-    onSecondary = Color(0xFF003353),
-    secondaryContainer = Color(0xFF164B70),
-    onSecondaryContainer = Color(0xFFCEE5FF),
-    tertiary = Color(0xFFB48EAD), // Nord15
-    onTertiary = Color(0xFF431B3E),
-    tertiaryContainer = Color(0xFF5B3155),
-    onTertiaryContainer = Color(0xFFFFD6F9),
-    background = Color(0xFF242933),
+    onPrimaryContainer = Color(0xFFBCE9F5),
+    secondary = Color(0xFF81A1C1),
+    onSecondary = Color(0xFF003258),
+    secondaryContainer = Color(0xFF00497D),
+    onSecondaryContainer = Color(0xFFD1E4FF),
+    tertiary = Color(0xFFA3BE8C),
+    onTertiary = Color(0xFF1B370E),
+    tertiaryContainer = Color(0xFF314E22),
+    onTertiaryContainer = Color(0xFFC2E8A6),
+    background = Color(0xFF2E3440),
     onBackground = Color(0xFFECEFF4),
-    surface = Color(0xFF2E3440), // Nord0
+    surface = Color(0xFF3B4252),
     onSurface = Color(0xFFECEFF4),
-    surfaceVariant = Color(0xFF3B4252), // Nord1
+    surfaceVariant = Color(0xFF434C5E),
     onSurfaceVariant = Color(0xFFD8DEE9),
-    outline = Color(0xFF4C566A),
+    outline = Color(0xFF8FBCBB),
 )
 
 // ==========================================
-// 4. DRACULA
+// 5. DRACULA
 // ==========================================
 val DraculaLightColors = lightColorScheme(
-    primary = Color(0xFF7A4EDB),
+    primary = Color(0xFF9580FF),
     onPrimary = Color(0xFFFFFFFF),
-    primaryContainer = Color(0xFFEADBFF),
-    onPrimaryContainer = Color(0xFF24005A),
-    secondary = Color(0xFFE0429C),
+    primaryContainer = Color(0xFFE8DEFF),
+    onPrimaryContainer = Color(0xFF21005D),
+    secondary = Color(0xFFFF79C6),
     onSecondary = Color(0xFFFFFFFF),
-    secondaryContainer = Color(0xFFFFD8E7),
-    onSecondaryContainer = Color(0xFF3B0021),
-    tertiary = Color(0xFF009AA6),
-    onTertiary = Color(0xFFFFFFFF),
-    tertiaryContainer = Color(0xFF67F6FF),
-    onTertiaryContainer = Color(0xFF002023),
+    secondaryContainer = Color(0xFFFFD8E6),
+    onSecondaryContainer = Color(0xFF3D0024),
+    tertiary = Color(0xFF50FA7B),
+    onTertiary = Color(0xFF003912),
+    tertiaryContainer = Color(0xFF67FD8E),
+    onTertiaryContainer = Color(0xFF002107),
     background = Color(0xFFF8F8F2),
     onBackground = Color(0xFF282A36),
-    surface = Color(0xFFEDECE6),
+    surface = Color(0xFFFFFFFF),
     onSurface = Color(0xFF282A36),
-    surfaceVariant = Color(0xFFDFDFD6),
-    onSurfaceVariant = Color(0xFF44475A),
-    outline = Color(0xFF6272A4),
+    surfaceVariant = Color(0xFFE2E1EC),
+    onSurfaceVariant = Color(0xFF45464F),
+    outline = Color(0xFF767680),
 )
 
 val DraculaDarkColors = darkColorScheme(
-    primary = Color(0xFFBD93F9), // Purple
-    onPrimary = Color(0xFF2F006D),
-    primaryContainer = Color(0xFF4C218B),
-    onPrimaryContainer = Color(0xFFEADBFF),
-    secondary = Color(0xFFFF79C6), // Pink
-    onSecondary = Color(0xFF5D0039),
-    secondaryContainer = Color(0xFF810051),
-    onSecondaryContainer = Color(0xFFFFD8E7),
-    tertiary = Color(0xFF8BE9FD), // Cyan
-    onTertiary = Color(0xFF00363B),
-    tertiaryContainer = Color(0xFF004F56),
-    onTertiaryContainer = Color(0xFF67F6FF),
-    background = Color(0xFF1E1F29),
+    primary = Color(0xFFBD93F9),
+    onPrimary = Color(0xFF320072),
+    primaryContainer = Color(0xFF4A1F8F),
+    onPrimaryContainer = Color(0xFFE8DEFF),
+    secondary = Color(0xFFFF79C6),
+    onSecondary = Color(0xFF5E003A),
+    secondaryContainer = Color(0xFF830053),
+    onSecondaryContainer = Color(0xFFFFD8E6),
+    tertiary = Color(0xFF8BE9FD),
+    onTertiary = Color(0xFF00363F),
+    tertiaryContainer = Color(0xFF004F5C),
+    onTertiaryContainer = Color(0xFFB5F0FF),
+    background = Color(0xFF282A36),
     onBackground = Color(0xFFF8F8F2),
-    surface = Color(0xFF282A36),
+    surface = Color(0xFF21222C),
     onSurface = Color(0xFFF8F8F2),
     surfaceVariant = Color(0xFF44475A),
-    onSurfaceVariant = Color(0xFFBFBFBA),
+    onSurfaceVariant = Color(0xFF6272A4),
     outline = Color(0xFF6272A4),
 )
 
 // ==========================================
-// 5. TOKYO NIGHT
+// 6. TOKYO NIGHT
 // ==========================================
 val TokyoNightLightColors = lightColorScheme(
     primary = Color(0xFF34548A),
     onPrimary = Color(0xFFFFFFFF),
-    primaryContainer = Color(0xFFD7E2FF),
-    onPrimaryContainer = Color(0xFF001A40),
-    secondary = Color(0xFF6D4DA6),
+    primaryContainer = Color(0xFFD6E3FF),
+    onPrimaryContainer = Color(0xFF001B3E),
+    secondary = Color(0xFF5A4EB3),
     onSecondary = Color(0xFFFFFFFF),
-    secondaryContainer = Color(0xFFEDDCFF),
-    onSecondaryContainer = Color(0xFF270057),
-    tertiary = Color(0xFF00687A),
+    secondaryContainer = Color(0xFFE4DFFF),
+    onSecondaryContainer = Color(0xFF180065),
+    tertiary = Color(0xFF00677F),
     onTertiary = Color(0xFFFFFFFF),
-    tertiaryContainer = Color(0xFFACEBFA),
-    onTertiaryContainer = Color(0xFF001F26),
-    background = Color(0xFFE6E7EE),
-    onBackground = Color(0xFF1A1B26),
-    surface = Color(0xFFDCDEE7),
-    onSurface = Color(0xFF1A1B26),
-    surfaceVariant = Color(0xFFCCD0DF),
-    onSurfaceVariant = Color(0xFF343B58),
-    outline = Color(0xFF565F89),
+    tertiaryContainer = Color(0xFFB7EAFF),
+    onTertiaryContainer = Color(0xFF001F28),
+    background = Color(0xFFE1E2E8),
+    onBackground = Color(0xFF191B28),
+    surface = Color(0xFFECEEF4),
+    onSurface = Color(0xFF191B28),
+    surfaceVariant = Color(0xFFD4D6DF),
+    onSurfaceVariant = Color(0xFF44474E),
+    outline = Color(0xFF74777F),
 )
 
 val TokyoNightDarkColors = darkColorScheme(
-    primary = Color(0xFF7AA2F7), // Blue
-    onPrimary = Color(0xFF002D6E),
-    primaryContainer = Color(0xFF1A448E),
-    onPrimaryContainer = Color(0xFFD7E2FF),
-    secondary = Color(0xFFBB9AF7), // Purple
-    onSecondary = Color(0xFF3D1C76),
-    secondaryContainer = Color(0xFF54348E),
-    onSecondaryContainer = Color(0xFFEDDCFF),
-    tertiary = Color(0xFF7DCFFF), // Cyan
-    onTertiary = Color(0xFF003540),
-    tertiaryContainer = Color(0xFF004E5C),
-    onTertiaryContainer = Color(0xFFACEBFA),
-    background = Color(0xFF16161E),
+    primary = Color(0xFF7AA2F7),
+    onPrimary = Color(0xFF002C63),
+    primaryContainer = Color(0xFF1A3E7B),
+    onPrimaryContainer = Color(0xFFD6E3FF),
+    secondary = Color(0xFFBB9AF7),
+    onSecondary = Color(0xFF34008B),
+    secondaryContainer = Color(0xFF482D98),
+    onSecondaryContainer = Color(0xFFE4DFFF),
+    tertiary = Color(0xFF7DCFFF),
+    onTertiary = Color(0xFF003544),
+    tertiaryContainer = Color(0xFF004D60),
+    onTertiaryContainer = Color(0xFFB7EAFF),
+    background = Color(0xFF1A1B26),
     onBackground = Color(0xFFC0CAF5),
-    surface = Color(0xFF1A1B26),
+    surface = Color(0xFF16161E),
     onSurface = Color(0xFFC0CAF5),
     surfaceVariant = Color(0xFF24283B),
     onSurfaceVariant = Color(0xFF9AA5CE),
@@ -241,7 +284,7 @@ val TokyoNightDarkColors = darkColorScheme(
 )
 
 // ==========================================
-// 6. SUNSET CORAL
+// 7. SUNSET CORAL
 // ==========================================
 val SunsetCoralLightColors = lightColorScheme(
     primary = Color(0xFFE11D48),

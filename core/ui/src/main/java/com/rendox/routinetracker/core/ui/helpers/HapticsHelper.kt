@@ -10,6 +10,20 @@ import android.view.View
 
 object HapticsHelper {
 
+    fun performClick(context: Context) {
+        val vibrator = getVibrator(context)
+        if (vibrator?.hasVibrator() == true) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                vibrator.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK))
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                vibrator.vibrate(VibrationEffect.createOneShot(25, VibrationEffect.DEFAULT_AMPLITUDE))
+            } else {
+                @Suppress("DEPRECATION")
+                vibrator.vibrate(25)
+            }
+        }
+    }
+
     fun performClick(view: View?) {
         view?.performHapticFeedback(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -21,23 +35,26 @@ object HapticsHelper {
     }
 
     fun performCelebration(context: Context) {
-        val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        val vibrator = getVibrator(context)
+        if (vibrator?.hasVibrator() == true) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val timings = longArrayOf(0, 40, 60, 50)
+                val amplitudes = intArrayOf(0, 190, 0, 255)
+                vibrator.vibrate(VibrationEffect.createWaveform(timings, amplitudes, -1))
+            } else {
+                @Suppress("DEPRECATION")
+                vibrator.vibrate(longArrayOf(0, 40, 60, 50), -1)
+            }
+        }
+    }
+
+    private fun getVibrator(context: Context): Vibrator? {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager
             vibratorManager?.defaultVibrator
         } else {
             @Suppress("DEPRECATION")
             context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator
-        }
-
-        if (vibrator?.hasVibrator() == true) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val timings = longArrayOf(0, 35, 50, 45)
-                val amplitudes = intArrayOf(0, 180, 0, 255)
-                vibrator.vibrate(VibrationEffect.createWaveform(timings, amplitudes, -1))
-            } else {
-                @Suppress("DEPRECATION")
-                vibrator.vibrate(longArrayOf(0, 35, 50, 45), -1)
-            }
         }
     }
 }

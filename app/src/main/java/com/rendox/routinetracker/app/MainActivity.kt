@@ -25,6 +25,10 @@ class MainActivity : ComponentActivity() {
             window.isNavigationBarContrastEnforced = false
         }
 
+        // Initialize theme and typography synchronously before composition to prevent color/font flash
+        com.rendox.routinetracker.core.ui.theme.ThemeManager.init(this)
+        com.rendox.routinetracker.core.ui.theme.FontManager.init(this)
+
         setContent {
             val useDarkTheme = isSystemInDarkTheme()
 
