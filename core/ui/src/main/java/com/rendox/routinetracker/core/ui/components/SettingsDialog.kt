@@ -43,6 +43,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -58,6 +59,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.rendox.routinetracker.core.ui.theme.AppIconManager
+import com.rendox.routinetracker.core.ui.theme.AppIconOption
 import com.rendox.routinetracker.core.ui.theme.ColorPalette
 import com.rendox.routinetracker.core.ui.theme.ThemeManager
 import com.rendox.routinetracker.core.ui.theme.ThemeMode
@@ -71,6 +74,11 @@ fun SettingsDialog(
     val context = LocalContext.current
     var celebrationFxEnabled by remember { mutableStateOf(true) }
     val themeState by ThemeManager.themeState.collectAsState()
+    val currentAppIcon by AppIconManager.currentIcon.collectAsState()
+
+    LaunchedEffect(Unit) {
+        AppIconManager.init(context)
+    }
 
     Dialog(onDismissRequest = onDismissRequest) {
         Surface(
@@ -211,6 +219,42 @@ fun SettingsDialog(
                             palette = palette,
                             isSelected = isSelected,
                             onClick = { ThemeManager.setColorPalette(palette) },
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(18.dp))
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // ==========================================
+                // SECTION: App Icon Style (NAM / Nothing / Material You)
+                // ==========================================
+                Text(
+                    text = "App Icon Style",
+                    style = MaterialTheme.typography.labelLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                    ),
+                    color = MaterialTheme.colorScheme.primary,
+                )
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = "Change launcher icon to match your home screen aesthetic",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    AppIconOption.entries.forEach { option ->
+                        val isSelected = currentAppIcon == option
+                        AppIconSelectionRow(
+                            option = option,
+                            isSelected = isSelected,
+                            onClick = { AppIconManager.setAppIcon(context, option) },
                         )
                     }
                 }
@@ -361,6 +405,100 @@ fun SettingsDialog(
                     shape = RoundedCornerShape(14.dp),
                 ) {
                     Text(text = "Done")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AppIconSelectionRow(
+    option: AppIconOption,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(14.dp))
+            .clickable(onClick = onClick)
+            .border(
+                width = if (isSelected) 2.dp else 1.dp,
+                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                shape = RoundedCornerShape(14.dp),
+            ),
+        shape = RoundedCornerShape(14.dp),
+        color = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f) else MaterialTheme.colorScheme.surface,
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Row(
+                modifier = Modifier.weight(1f),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                // Mini App Icon Preview
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(option.previewBg)
+                        .border(
+                            width = 1.dp,
+                            color = Color.White.copy(alpha = 0.2f),
+                            shape = RoundedCornerShape(10.dp),
+                        ),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(20.dp)
+                            .border(1.5.dp, Color.White.copy(alpha = 0.5f), CircleShape),
+                    )
+                    Box(
+                        modifier = Modifier
+                            .size(6.dp)
+                            .clip(CircleShape)
+                            .background(option.previewAccent),
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(12.dp))
+
+                Column {
+                    Text(
+                        text = option.title,
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                        ),
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                    Text(
+                        text = option.subtitle,
+                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+
+            if (isSelected) {
+                Box(
+                    modifier = Modifier
+                        .size(22.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = "Selected",
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(14.dp),
+                    )
                 }
             }
         }

@@ -1,0 +1,32 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Nothing OS signature dotted outer progress ring -->
+    <!-- r=28 ring dots around circle (54,54) -->
+    <group>
+        <!-- Outer ring with high contrast Nothing dot matrix style -->
+        <path
+            android:pathData="M54,26 A28,28 0 1,0 54,82 A28,28 0 1,0 54,26 Z"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="2.0"
+            android:strokeAlpha="0.35" />
+        <!-- Middle ring r=19 -->
+        <path
+            android:pathData="M54,35 A19,19 0 1,0 54,73 A19,19 0 1,0 54,35 Z"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="2.8"
+            android:strokeAlpha="0.75" />
+        <!-- Inner ring r=10.5 -->
+        <path
+            android:pathData="M54,43.5 A10.5,10.5 0 1,0 54,64.5 A10.5,10.5 0 1,0 54,43.5 Z"
+            android:strokeColor="#FFFFFF"
+            android:strokeWidth="3.2"
+            android:strokeAlpha="0.95" />
+        <!-- Nothing signature iconic Red Accent Core Dot r=4.5 -->
+        <path
+            android:pathData="M54,49.5 A4.5,4.5 0 1,0 54,58.5 A4.5,4.5 0 1,0 54,49.5 Z"
+            android:fillColor="#D71921" />
+    </group>
+</vector>
