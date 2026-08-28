@@ -6,7 +6,9 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -33,6 +35,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
@@ -69,12 +72,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.rendox.routinetracker.core.data.backup.BackupManager
 import com.rendox.routinetracker.core.database.RoutineTrackerDatabase
 import com.rendox.routinetracker.core.ui.helpers.HapticsHelper
 import com.rendox.routinetracker.core.ui.theme.AppIconManager
 import com.rendox.routinetracker.core.ui.theme.AppIconOption
 import com.rendox.routinetracker.core.ui.theme.ColorPalette
+import com.rendox.routinetracker.core.ui.theme.FontManager
+import com.rendox.routinetracker.core.ui.theme.FontOption
 import com.rendox.routinetracker.core.ui.theme.ThemeManager
 import com.rendox.routinetracker.core.ui.theme.ThemeMode
 import kotlinx.coroutines.launch
@@ -82,6 +88,7 @@ import org.koin.mp.KoinPlatformTools
 
 enum class SettingsCategory {
     APPEARANCE,
+    FONTS,
     APP_ICON,
     BACKUP,
     DONATION,
@@ -99,8 +106,10 @@ fun SettingsDialog(
     var celebrationFxEnabled by remember { mutableStateOf(true) }
     val themeState by ThemeManager.themeState.collectAsState()
     val currentAppIcon by AppIconManager.currentIcon.collectAsState()
+    val currentFont by FontManager.currentFontOption.collectAsState()
 
-    var expandedCategory by remember { mutableStateOf<SettingsCategory?>(SettingsCategory.APPEARANCE) }
+    // All categories closed by default
+    var expandedCategory by remember { mutableStateOf<SettingsCategory?>(null) }
 
     val database = remember {
         try {
@@ -142,15 +151,33 @@ fun SettingsDialog(
         }
     }
 
-    LaunchedEffect(Unit) {
-        AppIconManager.init(context)
+    val fontPickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.OpenDocument(),
+    ) { uri ->
+        if (uri != null) {
+            val result = FontManager.importCustomFont(context, uri)
+            if (result.isSuccess) {
+                HapticsHelper.performCelebration(context)
+                Toast.makeText(context, "✅ Custom font applied!", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(context, "❌ Could not load font file: ${result.exceptionOrNull()?.message}", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
-    Dialog(onDismissRequest = onDismissRequest) {
+    LaunchedEffect(Unit) {
+        AppIconManager.init(context)
+        FontManager.init(context)
+    }
+
+    Dialog(
+        onDismissRequest = onDismissRequest,
+        properties = DialogProperties(usePlatformDefaultWidth = false),
+    ) {
         Surface(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(vertical = 16.dp),
+                .padding(horizontal = 14.dp, vertical = 20.dp),
             shape = RoundedCornerShape(28.dp),
             color = MaterialTheme.colorScheme.surface,
             tonalElevation = 6.dp,
@@ -170,7 +197,7 @@ fun SettingsDialog(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
-                                .size(40.dp)
+                                .size(42.dp)
                                 .clip(CircleShape)
                                 .background(MaterialTheme.colorScheme.primaryContainer),
                             contentAlignment = Alignment.Center,
@@ -239,7 +266,14 @@ fun SettingsDialog(
                             FilterChip(
                                 selected = selected,
                                 onClick = { ThemeManager.setThemeMode(mode) },
-                                label = { Text(text = mode.title, fontSize = 12.sp) },
+                                label = {
+                                    Text(
+                                        text = mode.title,
+                                        fontSize = 12.sp,
+                                        maxLines = 1,
+                                        softWrap = false,
+                                    )
+                                },
                                 leadingIcon = if (selected) {
                                     {
                                         Icon(
@@ -299,7 +333,96 @@ fun SettingsDialog(
                 Spacer(modifier = Modifier.height(10.dp))
 
                 // ==========================================
-                // CATEGORY 2: App Icon Style
+                // CATEGORY 2: Typography & Fonts (New)
+                // ==========================================
+                ClaudeSettingsSection(
+                    icon = Icons.Default.Edit,
+                    title = "Typography & Fonts",
+                    subtitle = "Google Sans, Nothing Dot, Samsung One, Claude & Custom",
+                    isExpanded = expandedCategory == SettingsCategory.FONTS,
+                    onToggle = {
+                        expandedCategory = if (expandedCategory == SettingsCategory.FONTS) null else SettingsCategory.FONTS
+                    },
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        FontOption.entries.forEach { option ->
+                            val isSelected = currentFont == option
+                            Surface(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(14.dp))
+                                    .clickable { FontManager.setFontOption(context, option) }
+                                    .border(
+                                        width = if (isSelected) 2.dp else 1.dp,
+                                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                                        shape = RoundedCornerShape(14.dp),
+                                    ),
+                                shape = RoundedCornerShape(14.dp),
+                                color = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f) else MaterialTheme.colorScheme.surface,
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 14.dp, vertical = 10.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                ) {
+                                    Column(modifier = Modifier.weight(1f)) {
+                                        Text(
+                                            text = option.title,
+                                            style = MaterialTheme.typography.bodyMedium.copy(
+                                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                            ),
+                                            color = MaterialTheme.colorScheme.onSurface,
+                                        )
+                                        Text(
+                                            text = option.subtitle,
+                                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                    }
+
+                                    if (isSelected) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(22.dp)
+                                                .clip(CircleShape)
+                                                .background(MaterialTheme.colorScheme.primary),
+                                            contentAlignment = Alignment.Center,
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.Check,
+                                                contentDescription = null,
+                                                tint = MaterialTheme.colorScheme.onPrimary,
+                                                modifier = Modifier.size(14.dp),
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(6.dp))
+
+                        OutlinedButton(
+                            onClick = {
+                                fontPickerLauncher.launch(arrayOf("font/*", "application/x-font-ttf", "application/x-font-otf", "*/*"))
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                        ) {
+                            Text(text = "📁 Import Custom Font (.ttf / .otf)", fontSize = 12.sp)
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // ==========================================
+                // CATEGORY 3: App Icon Style
                 // ==========================================
                 ClaudeSettingsSection(
                     icon = Icons.Default.Star,
@@ -328,7 +451,7 @@ fun SettingsDialog(
                 Spacer(modifier = Modifier.height(10.dp))
 
                 // ==========================================
-                // CATEGORY 3: Backup & Storage
+                // CATEGORY 4: Backup & Storage
                 // ==========================================
                 ClaudeSettingsSection(
                     icon = Icons.Default.Lock,
@@ -358,7 +481,12 @@ fun SettingsDialog(
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(12.dp),
                         ) {
-                            Text(text = "Export JSON", fontSize = 12.sp)
+                            Text(
+                                text = "Export JSON",
+                                fontSize = 12.sp,
+                                maxLines = 1,
+                                softWrap = false,
+                            )
                         }
 
                         OutlinedButton(
@@ -368,7 +496,12 @@ fun SettingsDialog(
                             modifier = Modifier.weight(1f),
                             shape = RoundedCornerShape(12.dp),
                         ) {
-                            Text(text = "Restore JSON", fontSize = 12.sp)
+                            Text(
+                                text = "Restore JSON",
+                                fontSize = 12.sp,
+                                maxLines = 1,
+                                softWrap = false,
+                            )
                         }
                     }
 
@@ -386,7 +519,7 @@ fun SettingsDialog(
                 Spacer(modifier = Modifier.height(10.dp))
 
                 // ==========================================
-                // CATEGORY 4: Support & Sponsor
+                // CATEGORY 5: Support & Sponsor
                 // ==========================================
                 ClaudeSettingsSection(
                     icon = Icons.Default.Favorite,
@@ -459,7 +592,7 @@ fun SettingsDialog(
                 Spacer(modifier = Modifier.height(10.dp))
 
                 // ==========================================
-                // CATEGORY 5: About RoutineFlow
+                // CATEGORY 6: About RoutineFlow
                 // ==========================================
                 ClaudeSettingsSection(
                     icon = Icons.Default.Info,
@@ -651,7 +784,11 @@ private fun ClaudeSettingsSection(
         shape = RoundedCornerShape(16.dp),
         color = if (isExpanded) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f) else MaterialTheme.colorScheme.surface,
     ) {
-        Column(modifier = Modifier.padding(14.dp)) {
+        Column(
+            modifier = Modifier
+                .padding(14.dp)
+                .animateContentSize(animationSpec = tween(250)),
+        ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -703,11 +840,7 @@ private fun ClaudeSettingsSection(
                 )
             }
 
-            AnimatedVisibility(
-                visible = isExpanded,
-                enter = expandVertically() + fadeIn(),
-                exit = shrinkVertically() + fadeOut(),
-            ) {
+            if (isExpanded) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()

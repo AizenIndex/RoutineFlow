@@ -20,13 +20,17 @@ SELECT completionTimeHour, completionTimeMinute
 FROM dueDateEntity
 WHERE scheduleId = ? AND dueDateNumber = ?;
 
+getAll:
+SELECT *
+FROM dueDateEntity;
+
 updateCompletionTime:
 UPDATE dueDateEntity
 SET completionTimeHour = ?, completionTimeMinute = ?
 WHERE scheduleId = ? AND dueDateNumber = ?;
 
 insertDueDate:
-INSERT INTO dueDateEntity
+INSERT OR REPLACE INTO dueDateEntity
 VALUES (?, ?, ?, ?);
 
 deleteDueDates:

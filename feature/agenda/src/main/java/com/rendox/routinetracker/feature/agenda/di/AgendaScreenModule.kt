@@ -10,6 +10,7 @@ val agendaScreenModule = module {
         AgendaScreenViewModel(
             insertHabitCompletion = get(),
             getAgenda = get(),
+            deleteHabit = get(),
         )
     }
 }

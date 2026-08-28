@@ -1,8 +1,11 @@
 package com.rendox.routinetracker.feature.agenda
 
 import android.content.res.Configuration
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -23,8 +26,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,6 +40,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -43,25 +49,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidViewBinding
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.rendox.routinetracker.core.domain.completionhistory.InsertHabitCompletionUseCase.IllegalDateEditAttemptException
 import com.rendox.routinetracker.core.model.Habit
 import com.rendox.routinetracker.core.ui.components.CompletionCelebration
 import com.rendox.routinetracker.core.ui.components.SettingsDialog
-import com.rendox.routinetracker.core.ui.helpers.HapticsHelper
 import com.rendox.routinetracker.core.ui.helpers.LocalLocale
 import com.rendox.routinetracker.core.ui.helpers.ObserveUiEvent
-import com.rendox.routinetracker.feature.agenda.databinding.AgendaRecyclerviewBinding
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -118,6 +119,9 @@ internal fun AgendaRoute(
         insertCompletion = { routineId, completionRecord ->
             viewModel.onRoutineComplete(routineId, completionRecord)
         },
+        deleteHabits = { habitIds ->
+            viewModel.deleteHabits(habitIds)
+        },
         onDateChange = { viewModel.onDateChange(it.toKotlinLocalDate()) },
         onNotDueRoutinesVisibilityToggle = {
             viewModel.onNotDueRoutinesVisibilityToggle()
@@ -138,6 +142,7 @@ internal fun AgendaScreen(
     onAddRoutineClick: () -> Unit,
     onRoutineClick: (Long) -> Unit,
     insertCompletion: (Long, Habit.CompletionRecord) -> Unit,
+    deleteHabits: (Set<Long>) -> Unit,
     onDateChange: (LocalDate) -> Unit,
     onNotDueRoutinesVisibilityToggle: () -> Unit,
 ) {
@@ -145,41 +150,92 @@ internal fun AgendaScreen(
     var celebrationTriggered by remember { mutableStateOf(false) }
     var showSettingsDialog by remember { mutableStateOf(false) }
 
+    // Multi-Selection State
+    var isSelectionMode by remember { mutableStateOf(false) }
+    var selectedRoutineIds by remember { mutableStateOf(setOf<Long>()) }
+    var showDeleteConfirmDialog by remember { mutableStateOf(false) }
+
+    val totalRoutines = routineList?.size ?: 0
+    val completedRoutines = routineList?.count { it.numOfTimesCompleted > 0f } ?: 0
+    val progress = if (totalRoutines > 0) completedRoutines.toFloat() / totalRoutines.toFloat() else 0f
+
+    val animatedProgress by animateFloatAsState(
+        targetValue = progress,
+        animationSpec = tween(600),
+        label = "appBarProgress",
+    )
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         snackbarHost = {
             SnackbarHost(hostState = snackbarHostState)
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = onAddRoutineClick,
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                shape = RoundedCornerShape(18.dp),
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Add,
-                    contentDescription = stringResource(id = R.string.fab_icon_description),
-                )
+            if (!isSelectionMode) {
+                FloatingActionButton(
+                    onClick = onAddRoutineClick,
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    shape = RoundedCornerShape(18.dp),
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = stringResource(id = R.string.fab_icon_description),
+                    )
+                }
             }
         },
     ) { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues)) {
-            val dateFormatter =
-                remember { DateTimeFormatter.ofPattern("EEEE, MMM d", locale) }
+            val dateFormatter = remember { DateTimeFormatter.ofPattern("EEEE, MMM d", locale) }
             val formattedDate = remember(currentDate, locale) {
                 if (currentDate == today) "Today, " + currentDate.format(DateTimeFormatter.ofPattern("MMM d", locale))
                 else currentDate.format(dateFormatter)
             }
 
+            val currentHour = remember { LocalTime.now().hour }
+            val greeting = remember(currentHour, currentDate, today) {
+                if (currentDate == today) {
+                    when (currentHour) {
+                        in 5..11 -> "Good morning"
+                        in 12..16 -> "Good afternoon"
+                        in 17..21 -> "Good evening"
+                        else -> "Quiet night"
+                    }
+                } else {
+                    "Agenda for"
+                }
+            }
+
+            // Top App Bar
             AgendaTopAppBar(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(68.dp),
+                    .height(76.dp),
+                greeting = greeting,
                 title = formattedDate,
+                totalRoutines = totalRoutines,
+                completedRoutines = completedRoutines,
+                progress = animatedProgress,
                 showAllRoutines = showAllRoutines,
+                isSelectionMode = isSelectionMode,
+                selectedCount = selectedRoutineIds.size,
                 onNotDueRoutinesVisibilityToggle = onNotDueRoutinesVisibilityToggle,
                 onSettingsClick = { showSettingsDialog = true },
+                onCancelSelection = {
+                    isSelectionMode = false
+                    selectedRoutineIds = emptySet()
+                },
+                onSelectAll = {
+                    routineList?.map { it.id }?.let { allIds ->
+                        selectedRoutineIds = allIds.toSet()
+                    }
+                },
+                onDeleteSelected = {
+                    if (selectedRoutineIds.isNotEmpty()) {
+                        showDeleteConfirmDialog = true
+                    }
+                },
             )
 
             Column(
@@ -187,25 +243,15 @@ internal fun AgendaScreen(
             ) {
                 Spacer(
                     modifier = Modifier
-                        .height(68.dp)
+                        .height(76.dp)
                         .systemBarsPadding(),
-                )
-
-                // Claude-style Greeting & Daily Overview Card
-                ClaudeAgendaHeroCard(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 6.dp),
-                    currentDate = currentDate,
-                    today = today,
-                    routineList = routineList,
                 )
 
                 val weekCalendarHeight = 70.dp
                 RoutineTrackerWeekCalendar(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 4.dp, bottom = 6.dp)
+                        .padding(top = 2.dp, bottom = 8.dp)
                         .height(weekCalendarHeight),
                     selectedDate = currentDate,
                     initialDate = today,
@@ -231,14 +277,31 @@ internal fun AgendaScreen(
                             }
                         }
                     }
-                    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                        AgendaList(
-                            modifier = Modifier.padding(horizontal = 8.dp),
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState()),
+                    ) {
+                        PureAgendaList(
+                            modifier = Modifier.padding(horizontal = 14.dp),
                             routineList = routineList,
+                            isSelectionMode = isSelectionMode,
+                            selectedRoutineIds = selectedRoutineIds,
                             onRoutineClick = onRoutineClick,
+                            onRoutineLongClick = { routineId ->
+                                isSelectionMode = true
+                                selectedRoutineIds = if (selectedRoutineIds.contains(routineId)) {
+                                    selectedRoutineIds - routineId
+                                } else {
+                                    selectedRoutineIds + routineId
+                                }
+                                if (selectedRoutineIds.isEmpty()) {
+                                    isSelectionMode = false
+                                }
+                            },
                             onStatusCheckmarkClick = onStatusCheckmarkClick,
                         )
-                        Spacer(modifier = Modifier.height(72.dp))
+                        Spacer(modifier = Modifier.height(84.dp))
                     }
                 }
 
@@ -249,7 +312,7 @@ internal fun AgendaScreen(
                             .weight(1f),
                         contentAlignment = Alignment.Center,
                     ) {
-                        val smallTopAppBarHeight = 68.dp
+                        val smallTopAppBarHeight = 76.dp
                         NothingScheduled(
                             modifier = Modifier.padding(
                                 bottom = when (LocalConfiguration.current.orientation) {
@@ -267,6 +330,33 @@ internal fun AgendaScreen(
                 onAnimationEnd = { celebrationTriggered = false },
             )
 
+            if (showDeleteConfirmDialog) {
+                AlertDialog(
+                    onDismissRequest = { showDeleteConfirmDialog = false },
+                    title = { Text(text = "Delete Habits?") },
+                    text = {
+                        Text(text = "Are you sure you want to permanently delete ${selectedRoutineIds.size} selected habit(s) and all their streak history?")
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                deleteHabits(selectedRoutineIds)
+                                showDeleteConfirmDialog = false
+                                isSelectionMode = false
+                                selectedRoutineIds = emptySet()
+                            },
+                        ) {
+                            Text(text = "Delete", color = MaterialTheme.colorScheme.error)
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showDeleteConfirmDialog = false }) {
+                            Text(text = "Cancel")
+                        }
+                    },
+                )
+            }
+
             if (showSettingsDialog) {
                 SettingsDialog(
                     onDismissRequest = { showSettingsDialog = false },
@@ -277,223 +367,195 @@ internal fun AgendaScreen(
 }
 
 @Composable
-private fun ClaudeAgendaHeroCard(
+private fun AgendaTopAppBar(
     modifier: Modifier = Modifier,
-    currentDate: LocalDate,
-    today: LocalDate,
-    routineList: List<DisplayRoutine>?,
+    greeting: String,
+    title: String,
+    totalRoutines: Int,
+    completedRoutines: Int,
+    progress: Float,
+    showAllRoutines: Boolean,
+    isSelectionMode: Boolean,
+    selectedCount: Int,
+    onNotDueRoutinesVisibilityToggle: () -> Unit,
+    onSettingsClick: () -> Unit,
+    onCancelSelection: () -> Unit,
+    onSelectAll: () -> Unit,
+    onDeleteSelected: () -> Unit,
 ) {
-    val totalRoutines = routineList?.size ?: 0
-    val completedRoutines = routineList?.count { it.numOfTimesCompleted > 0f } ?: 0
-    val progress = if (totalRoutines > 0) completedRoutines.toFloat() / totalRoutines.toFloat() else 0f
-
-    val animatedProgress by animateFloatAsState(
-        targetValue = progress,
-        animationSpec = tween(600),
-        label = "heroProgress",
-    )
-
-    val currentHour = remember { LocalTime.now().hour }
-    val greeting = remember(currentHour, currentDate, today) {
-        if (currentDate == today) {
-            when (currentHour) {
-                in 5..11 -> "Good morning"
-                in 12..16 -> "Good afternoon"
-                in 17..21 -> "Good evening"
-                else -> "Quiet night"
-            }
-        } else {
-            "Schedule for"
-        }
-    }
-
     Surface(
-        modifier = modifier
-            .clip(RoundedCornerShape(20.dp))
-            .border(
-                1.dp,
-                MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
-                RoundedCornerShape(20.dp),
-            ),
-        shape = RoundedCornerShape(20.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
+        modifier = modifier,
+        color = MaterialTheme.colorScheme.surface,
+        tonalElevation = 2.dp,
     ) {
-        Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column {
-                    Text(
-                        text = greeting,
-                        style = MaterialTheme.typography.labelMedium.copy(
-                            fontWeight = FontWeight.Medium,
-                            letterSpacing = 0.5.sp,
-                        ),
-                        color = MaterialTheme.colorScheme.primary,
-                    )
-                    Text(
-                        text = if (totalRoutines == 0) "No habits scheduled"
-                        else if (completedRoutines == totalRoutines) "All habits completed! 🎉"
-                        else "$completedRoutines of $totalRoutines habits completed",
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                        ),
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.Center,
+        ) {
+            if (isSelectionMode) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        IconButton(onClick = onCancelSelection) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Cancel selection",
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "$selectedCount selected",
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        )
+                    }
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        TextButton(onClick = onSelectAll) {
+                            Text(text = "Select All")
+                        }
+                        IconButton(onClick = onDeleteSelected) {
+                            Icon(
+                                imageVector = Icons.Default.Delete,
+                                contentDescription = "Delete",
+                                tint = MaterialTheme.colorScheme.error,
+                            )
+                        }
+                    }
+                }
+            } else {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            Text(
+                                text = "RoutineFlow",
+                                style = MaterialTheme.typography.titleLarge.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    letterSpacing = (-0.5).sp,
+                                ),
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+
+                            if (totalRoutines > 0) {
+                                Box(
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(MaterialTheme.colorScheme.primaryContainer)
+                                        .padding(horizontal = 7.dp, vertical = 2.dp),
+                                ) {
+                                    Text(
+                                        text = "$completedRoutines/$totalRoutines",
+                                        style = MaterialTheme.typography.labelSmall.copy(
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 11.sp,
+                                        ),
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    )
+                                }
+                            }
+                        }
+
+                        Text(
+                            text = "$greeting • $title",
+                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                        )
+                    }
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        Surface(
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .border(
+                                    1.dp,
+                                    MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                                    CircleShape,
+                                ),
+                            shape = CircleShape,
+                            color = if (showAllRoutines) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f) else MaterialTheme.colorScheme.surface,
+                        ) {
+                            IconButton(
+                                onClick = onNotDueRoutinesVisibilityToggle,
+                                modifier = Modifier.size(36.dp),
+                            ) {
+                                if (showAllRoutines) {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.baseline_visibility_on_24),
+                                        contentDescription = stringResource(
+                                            id = R.string.routine_visibility_icon_toggle_all_visible_description,
+                                        ),
+                                        tint = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.size(17.dp),
+                                    )
+                                } else {
+                                    Icon(
+                                        painter = painterResource(id = R.drawable.baseline_visibility_off_24),
+                                        contentDescription = stringResource(
+                                            id = R.string.routine_visibility_icon_toggle_some_routines_hidden_description,
+                                        ),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.size(17.dp),
+                                    )
+                                }
+                            }
+                        }
+
+                        Surface(
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .border(
+                                    1.dp,
+                                    MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                                    CircleShape,
+                                ),
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.surface,
+                        ) {
+                            IconButton(
+                                onClick = onSettingsClick,
+                                modifier = Modifier.size(36.dp),
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Settings,
+                                    contentDescription = "Settings",
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(17.dp),
+                                )
+                            }
+                        }
+                    }
                 }
 
                 if (totalRoutines > 0) {
-                    Box(
+                    Spacer(modifier = Modifier.height(6.dp))
+                    LinearProgressIndicator(
+                        progress = { progress },
                         modifier = Modifier
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(MaterialTheme.colorScheme.primaryContainer)
-                            .padding(horizontal = 10.dp, vertical = 4.dp),
-                    ) {
-                        Text(
-                            text = "${(progress * 100).toInt()}%",
-                            style = MaterialTheme.typography.labelMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                            ),
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                        )
-                    }
-                }
-            }
-
-            if (totalRoutines > 0) {
-                Spacer(modifier = Modifier.height(10.dp))
-                LinearProgressIndicator(
-                    progress = { animatedProgress },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(6.dp)
-                        .clip(CircleShape),
-                    color = MaterialTheme.colorScheme.primary,
-                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
-                    strokeCap = StrokeCap.Round,
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun AgendaTopAppBar(
-    modifier: Modifier = Modifier,
-    title: String,
-    showAllRoutines: Boolean,
-    onNotDueRoutinesVisibilityToggle: () -> Unit,
-    onSettingsClick: () -> Unit,
-) {
-    Row(
-        modifier = modifier
-            .background(MaterialTheme.colorScheme.surface)
-            .padding(horizontal = 16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = "RoutineFlow",
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = (-0.5).sp,
-                ),
-                color = MaterialTheme.colorScheme.primary,
-            )
-            Text(
-                text = title,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-        }
-
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Surface(
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .border(
-                        1.dp,
-                        MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
-                        CircleShape,
-                    ),
-                shape = CircleShape,
-                color = if (showAllRoutines) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f) else MaterialTheme.colorScheme.surface,
-            ) {
-                IconButton(
-                    onClick = onNotDueRoutinesVisibilityToggle,
-                    modifier = Modifier.size(38.dp),
-                ) {
-                    if (showAllRoutines) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.baseline_visibility_on_24),
-                            contentDescription = stringResource(
-                                id = R.string.routine_visibility_icon_toggle_all_visible_description,
-                            ),
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(18.dp),
-                        )
-                    } else {
-                        Icon(
-                            painter = painterResource(id = R.drawable.baseline_visibility_off_24),
-                            contentDescription = stringResource(
-                                id = R.string.routine_visibility_icon_toggle_some_routines_hidden_description,
-                            ),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(18.dp),
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Surface(
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .border(
-                        1.dp,
-                        MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
-                        CircleShape,
-                    ),
-                shape = CircleShape,
-                color = MaterialTheme.colorScheme.surface,
-            ) {
-                IconButton(
-                    onClick = onSettingsClick,
-                    modifier = Modifier.size(38.dp),
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Settings,
-                        contentDescription = "Settings",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(18.dp),
+                            .fillMaxWidth()
+                            .height(3.5.dp)
+                            .clip(CircleShape),
+                        color = MaterialTheme.colorScheme.primary,
+                        trackColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                        strokeCap = StrokeCap.Round,
                     )
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun AgendaList(
-    modifier: Modifier = Modifier,
-    routineList: List<DisplayRoutine>,
-    onRoutineClick: (Long) -> Unit,
-    onStatusCheckmarkClick: (DisplayRoutine) -> Unit,
-) {
-    AndroidViewBinding(
-        modifier = modifier,
-        factory = AgendaRecyclerviewBinding::inflate,
-    ) {
-        val adapter = AgendaListAdapter(
-            routineList = routineList,
-            onRoutineClick = onRoutineClick,
-            onCheckmarkClick = onStatusCheckmarkClick,
-        )
-        agendaRecyclerview.adapter = adapter
     }
 }
 
@@ -518,13 +580,13 @@ fun NothingScheduled(modifier: Modifier = Modifier) {
         ) {
             Box(
                 modifier = Modifier
-                    .size(64.dp)
+                    .size(60.dp)
                     .clip(CircleShape)
                     .background(MaterialTheme.colorScheme.primaryContainer),
                 contentAlignment = Alignment.Center,
             ) {
                 Icon(
-                    modifier = Modifier.size(32.dp),
+                    modifier = Modifier.size(30.dp),
                     painter = painterResource(id = R.drawable.empty_calendar_24),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -542,19 +604,6 @@ fun NothingScheduled(modifier: Modifier = Modifier) {
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-        }
-    }
-}
-
-@Preview(showSystemUi = true)
-@Composable
-private fun NothingScheduledPreview() {
-    Surface {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center,
-        ) {
-            NothingScheduled()
         }
     }
 }

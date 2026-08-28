@@ -1,162 +1,181 @@
 package com.rendox.routinetracker.feature.agenda
 
-import android.view.ViewGroup
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.recyclerview.widget.RecyclerView
 import com.rendox.routinetracker.core.model.HabitStatus
 import com.rendox.routinetracker.core.ui.helpers.getStringResourceId
 import com.rendox.routinetracker.core.ui.theme.routineStatusColors
 
-class AgendaListAdapter(
-    private val routineList: List<DisplayRoutine>,
-    private val onRoutineClick: (Long) -> Unit,
-    private val onCheckmarkClick: (DisplayRoutine) -> Unit,
-) : RecyclerView.Adapter<AgendaListViewHolder>() {
-
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int,
-    ): AgendaListViewHolder = AgendaListViewHolder(ComposeView(parent.context))
-
-    override fun getItemCount(): Int = routineList.size
-
-    override fun onBindViewHolder(
-        holder: AgendaListViewHolder,
-        position: Int,
+@Composable
+fun PureAgendaList(
+    modifier: Modifier = Modifier,
+    routineList: List<DisplayRoutine>,
+    isSelectionMode: Boolean,
+    selectedRoutineIds: Set<Long>,
+    onRoutineClick: (Long) -> Unit,
+    onRoutineLongClick: (Long) -> Unit,
+    onStatusCheckmarkClick: (DisplayRoutine) -> Unit,
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        val routine = routineList[position]
-        holder.bind(
-            routine = routine,
-            onRoutineClick = { onRoutineClick(routine.id) },
-            onStatusCheckmarkClick = { onCheckmarkClick(routine) },
-        )
-    }
-}
-
-class AgendaListViewHolder(
-    private val composeView: ComposeView,
-) : RecyclerView.ViewHolder(composeView) {
-    fun bind(
-        routine: DisplayRoutine,
-        onRoutineClick: () -> Unit,
-        onStatusCheckmarkClick: () -> Unit,
-    ) {
-        composeView.setContent {
+        routineList.forEach { routine ->
+            val isSelected = selectedRoutineIds.contains(routine.id)
             AgendaItem(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 10.dp, end = 8.dp, top = 12.dp, bottom = 12.dp),
+                modifier = Modifier.fillMaxWidth(),
                 routine = routine,
-                onRoutineClick = onRoutineClick,
-                onStatusCheckmarkClick = onStatusCheckmarkClick,
+                isSelectionMode = isSelectionMode,
+                isSelected = isSelected,
+                onRoutineClick = {
+                    if (isSelectionMode) {
+                        onRoutineLongClick(routine.id)
+                    } else {
+                        onRoutineClick(routine.id)
+                    }
+                },
+                onRoutineLongClick = { onRoutineLongClick(routine.id) },
+                onStatusCheckmarkClick = { onStatusCheckmarkClick(routine) },
             )
         }
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AgendaItem(
     modifier: Modifier = Modifier,
     routine: DisplayRoutine,
+    isSelectionMode: Boolean = false,
+    isSelected: Boolean = false,
     onRoutineClick: () -> Unit,
+    onRoutineLongClick: () -> Unit = {},
     onStatusCheckmarkClick: () -> Unit,
 ) {
-    Row(
-        modifier = modifier.alpha(
-            if (routine.hasGrayedOutLook) 0.5f else 1f,
-        ),
-        verticalAlignment = Alignment.CenterVertically,
+    Surface(
+        modifier = modifier
+            .clip(RoundedCornerShape(18.dp))
+            .combinedClickable(
+                onClick = onRoutineClick,
+                onLongClick = onRoutineLongClick,
+            )
+            .border(
+                width = if (isSelected) 2.dp else 1.dp,
+                color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.25f),
+                shape = RoundedCornerShape(18.dp),
+            )
+            .alpha(if (routine.hasGrayedOutLook) 0.6f else 1f),
+        shape = RoundedCornerShape(18.dp),
+        color = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
     ) {
-        StatusCheckmark(
-            modifier = Modifier
-                .padding(end = 16.dp),
-            status = routine.status,
-            onClick = onStatusCheckmarkClick,
-            statusToggleIsDisabled = routine.statusToggleIsDisabled,
-        )
-
-        Box(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                    onClick = onRoutineClick,
-                ),
+                .padding(horizontal = 14.dp, vertical = 14.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Column {
+            // Multi-select checkbox when selection mode is active
+            AnimatedVisibility(
+                visible = isSelectionMode,
+                enter = fadeIn(),
+                exit = fadeOut(),
+            ) {
+                Checkbox(
+                    checked = isSelected,
+                    onCheckedChange = { onRoutineLongClick() },
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = MaterialTheme.colorScheme.primary,
+                        uncheckedColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    ),
+                    modifier = Modifier.padding(end = 8.dp),
+                )
+            }
+
+            if (!isSelectionMode) {
+                StatusCheckmark(
+                    modifier = Modifier.padding(end = 14.dp),
+                    status = routine.status,
+                    onClick = onStatusCheckmarkClick,
+                    statusToggleIsDisabled = routine.statusToggleIsDisabled,
+                )
+            }
+
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.Center,
+            ) {
                 Text(
-                    modifier = Modifier.padding(bottom = 2.dp),
                     text = routine.name,
-                    fontWeight = FontWeight.Normal,
-                    fontSize = 18.sp,
-                    maxLines = 1,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 20.sp,
+                    ),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
+
+                Spacer(modifier = Modifier.size(4.dp))
+
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(20))
-                        .background(MaterialTheme.colorScheme.secondaryContainer),
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.7f))
+                        .padding(horizontal = 8.dp, vertical = 2.dp),
                 ) {
                     Text(
-                        modifier = Modifier.padding(horizontal = 2.dp),
                         text = stringResource(id = routine.status.getStringResourceId()),
                         style = MaterialTheme.typography.labelSmall.copy(
-                            fontWeight = FontWeight.Normal,
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 11.sp,
                         ),
-                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
                     )
                 }
             }
         }
-    }
-}
-
-@Preview
-@Composable
-private fun AgendaItemPreview() {
-    Surface {
-        AgendaItem(
-            routine = routines[0],
-            onRoutineClick = {},
-            onStatusCheckmarkClick = {},
-        )
     }
 }
 
@@ -200,93 +219,40 @@ private fun StatusCheckmark(
     if (statusToggleIsDisabled) {
         icon = Icons.Outlined.Lock
         iconColor = MaterialTheme.colorScheme.outline
-        iconSize = 18.dp
+        iconSize = 16.dp
     } else {
-        iconSize = 24.dp
+        iconSize = 22.dp
     }
 
-    Box(
+    Surface(
         modifier = modifier
-            .size(28.dp)
+            .size(38.dp)
             .clip(CircleShape)
-            .background(backgroundColor)
-            .then(
-                if (statusToggleIsDisabled) {
-                    Modifier
-                } else {
-                    Modifier.clickable(onClick = onClick)
-                },
-            ),
-    ) {
-        icon?.let {
-            Icon(
-                modifier = Modifier
-                    .size(iconSize)
-                    .align(Alignment.Center),
-                imageVector = it,
-                contentDescription = null,
-                tint = iconColor!!,
+            .clickable(
+                onClick = onClick,
+                enabled = !statusToggleIsDisabled,
             )
-        }
-    }
-}
-
-@Preview(showSystemUi = true)
-@Composable
-private fun AgendaItemInListPreview() {
-    Surface(modifier = Modifier.fillMaxSize()) {
-        Column {
-            for (routine in routines) {
-                AgendaItem(
-                    modifier = Modifier.padding(vertical = 12.dp),
-                    routine = routine,
-                    onRoutineClick = {},
-                    onStatusCheckmarkClick = {},
+            .border(
+                width = 1.5.dp,
+                color = when (status) {
+                    HabitStatus.Completed, HabitStatus.OverCompleted, HabitStatus.SortedOutBacklog, HabitStatus.PartiallyCompleted -> MaterialTheme.routineStatusColors.completedStroke
+                    HabitStatus.Failed -> MaterialTheme.routineStatusColors.failedStroke
+                    else -> MaterialTheme.colorScheme.outlineVariant
+                },
+                shape = CircleShape,
+            ),
+        shape = CircleShape,
+        color = backgroundColor,
+    ) {
+        if (icon != null) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    modifier = Modifier.size(iconSize),
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = iconColor ?: MaterialTheme.colorScheme.onSurface,
                 )
             }
         }
     }
 }
-
-private val routines = listOf(
-    DisplayRoutine(
-        name = "Do sports",
-        status = HabitStatus.Completed,
-        completionTime = kotlinx.datetime.LocalTime(hour = 9, minute = 0),
-        id = 1,
-        hasGrayedOutLook = false,
-        statusToggleIsDisabled = false,
-        type = DisplayRoutineType.YesNoHabit,
-        numOfTimesCompleted = 1f,
-    ),
-    DisplayRoutine(
-        name = "Learn new English words",
-        status = HabitStatus.Planned,
-        completionTime = null,
-        id = 2,
-        hasGrayedOutLook = false,
-        statusToggleIsDisabled = false,
-        type = DisplayRoutineType.YesNoHabit,
-        numOfTimesCompleted = 0f,
-    ),
-    DisplayRoutine(
-        name = "Spend time outside",
-        status = HabitStatus.Failed,
-        completionTime = kotlinx.datetime.LocalTime(hour = 12, minute = 30),
-        id = 3,
-        hasGrayedOutLook = false,
-        statusToggleIsDisabled = true,
-        type = DisplayRoutineType.YesNoHabit,
-        numOfTimesCompleted = 0f,
-    ),
-    DisplayRoutine(
-        name = "Make my app",
-        status = HabitStatus.CompletedLater,
-        completionTime = kotlinx.datetime.LocalTime(hour = 17, minute = 0),
-        id = 4,
-        hasGrayedOutLook = true,
-        statusToggleIsDisabled = false,
-        type = DisplayRoutineType.YesNoHabit,
-        numOfTimesCompleted = 0f,
-    ),
-)

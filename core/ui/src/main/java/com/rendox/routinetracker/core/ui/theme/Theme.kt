@@ -11,6 +11,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import com.rendox.routinetracker.core.ui.helpers.LocalLocale
 import com.rendox.routinetracker.core.ui.helpers.getLocale
@@ -24,9 +25,12 @@ fun RoutineTrackerTheme(
     val context = LocalContext.current
     LaunchedEffect(Unit) {
         ThemeManager.init(context)
+        FontManager.init(context)
     }
 
     val themeState by ThemeManager.themeState.collectAsState()
+    val fontOption by FontManager.currentFontOption.collectAsState()
+    val customFontFamily by FontManager.customFontFamily.collectAsState()
 
     val isDark = when (themeState.themeMode) {
         ThemeMode.SYSTEM -> isSystemInDarkTheme()
@@ -54,12 +58,20 @@ fun RoutineTrackerTheme(
     val finalColors = baseColors.applyAmoledOverride(isDark = isDark, isAmoled = themeState.isAmoledBlack)
     val routineStatusColors = if (isDark) routineStatusColorsDark else routineStatusColorsLight
 
+    val activeFontFamily = remember(fontOption, customFontFamily) {
+        FontManager.getFontFamily(fontOption)
+    }
+    val dynamicTypography = remember(activeFontFamily) {
+        FontManager.createDynamicTypography(activeFontFamily)
+    }
+
     CompositionLocalProvider(
         LocalRoutineStatusColors provides routineStatusColors,
         LocalLocale provides getLocale(),
     ) {
         MaterialTheme(
             colorScheme = finalColors,
+            typography = dynamicTypography,
             content = content,
         )
     }

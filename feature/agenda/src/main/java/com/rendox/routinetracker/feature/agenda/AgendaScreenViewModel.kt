@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.rendox.routinetracker.core.domain.agenda.GetAgendaUseCase
 import com.rendox.routinetracker.core.domain.completionhistory.InsertHabitCompletionUseCase
 import com.rendox.routinetracker.core.domain.completionhistory.InsertHabitCompletionUseCase.IllegalDateEditAttemptException
+import com.rendox.routinetracker.core.domain.di.DeleteHabitUseCase
 import com.rendox.routinetracker.core.model.Habit
 import com.rendox.routinetracker.core.model.HabitStatus
 import com.rendox.routinetracker.core.model.dueOrCompletedStatuses
@@ -28,6 +29,7 @@ class AgendaScreenViewModel(
     today: LocalDate = Clock.System.todayIn(TimeZone.currentSystemDefault()),
     private val insertHabitCompletion: InsertHabitCompletionUseCase,
     private val getAgenda: GetAgendaUseCase,
+    private val deleteHabit: DeleteHabitUseCase,
 ) : ViewModel() {
     private val todayFlow = MutableStateFlow(today)
     private val agendaFlow: MutableStateFlow<List<DisplayRoutine>?> = MutableStateFlow(null)
@@ -109,6 +111,15 @@ class AgendaScreenViewModel(
                 return@launch
             }
 
+            updateRoutinesForDate(_currentDateFlow.value)
+        }
+    }
+
+    fun deleteHabits(habitIds: Set<Long>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            habitIds.forEach { id ->
+                deleteHabit(id)
+            }
             updateRoutinesForDate(_currentDateFlow.value)
         }
     }

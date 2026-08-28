@@ -22,13 +22,17 @@ CREATE TABLE scheduleEntity (
 );
 
 insertSchedule:
-INSERT INTO scheduleEntity
+INSERT OR REPLACE INTO scheduleEntity
 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
 
 getScheduleById:
 SELECT *
 FROM scheduleEntity
 WHERE id = ?;
+
+getAll:
+SELECT *
+FROM scheduleEntity;
 
 deleteSchedule:
 DELETE FROM scheduleEntity

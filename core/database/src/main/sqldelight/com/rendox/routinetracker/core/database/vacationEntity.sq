@@ -12,6 +12,9 @@ getAllVacations:
 SELECT * FROM vacationEntity
 WHERE habitId = ?;
 
+getAll:
+SELECT * FROM vacationEntity;
+
 getVacationsInPeriod:
 SELECT * FROM vacationEntity
 WHERE habitId = :habitId
@@ -33,7 +36,7 @@ WHERE (habitId IN :habitIds1
 ORDER BY habitId ASC, startDate ASC;
 
 insertVacation:
-INSERT INTO vacationEntity
+INSERT OR REPLACE INTO vacationEntity
 VALUES (?, ?, ?);
 
 deleteAllVacationsForHabit:

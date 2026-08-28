@@ -14,8 +14,12 @@ SELECT *
 FROM weekDayMonthRelatedEntity
 WHERE scheduleId = :scheduleId;
 
+getAll:
+SELECT *
+FROM weekDayMonthRelatedEntity;
+
 insertWeekDayMonthRelatedEntry:
-INSERT INTO weekDayMonthRelatedEntity
+INSERT OR REPLACE INTO weekDayMonthRelatedEntity
 VALUES (?, ?, ?, ?);
 
 deleteWeekDayMonthRelatedDays:
