@@ -1,90 +1,179 @@
-<h1 align="center" style="font-size:32px; line-height:1"><b>RoutineFlow</b></h1>
-<p align="center"><i>A modernized, adaptive habit tracker and daily routine planner with intelligent streaks, advanced consistency analytics, and celebration micro-interactions.</i></p>
-
 <div align="center">
-  <img alt="RoutineFlow logo" src="images/app_logo.svg" height="150px">
-</div>
+
+# 🌊 RoutineFlow
+
+**A Modern, Adaptive Habit Tracker & Daily Routine Planner for Android**  
+*Intelligent Schedules • Rolling Consistency Analytics • Streak Milestones • Micro-Interaction Celebrations*
 
 <br />
 
-<div align="center">
+<img alt="RoutineFlow App Logo" src="images/app_logo.svg" height="160px" width="160px">
 
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.0+-purple.svg)](https://kotlinlang.org)
-[![Compose](https://img.shields.io/badge/Jetpack%20Compose-M3-brightgreen.svg)](https://developer.android.com/jetpack/compose)
-[![Architecture](https://img.shields.io/badge/Architecture-Clean%20%2B%20Modular-orange.svg)](docs/ModuleStructure.md)
+<br />
+<br />
+
+[![Release](https://img.shields.io/github/v/release/AizenIndex/RoutineFlow?color=6366F1&label=Latest%20Release&logo=github)](https://github.com/AizenIndex/RoutineFlow/releases/latest)
+[![APK Download](https://img.shields.io/badge/Download-APK%20v1.0.0-10B981?logo=android&logoColor=white)](https://github.com/AizenIndex/RoutineFlow/releases/download/v1.0.0/RoutineFlow-v1.0.0.apk)
+[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](LICENSE)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.0+-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org)
+[![Jetpack Compose](https://img.shields.io/badge/Jetpack%20Compose-M3-4285F4?logo=jetpackcompose&logoColor=white)](https://developer.android.com/jetpack/compose)
+[![Platform](https://img.shields.io/badge/Platform-Android%20(API%2026%2B)-3DDC84?logo=android&logoColor=white)](https://android.com)
 
 </div>
 
 <br />
-
-## 🌟 What is Routine Tracker Modern?
-
-**Routine Tracker Modern** is an offline-first, privacy-respecting daily planner and habit tracker. It seamlessly combines a calendar agenda with an intelligent habit scheduling engine that adapts to your actual pace.
-
-Unlike typical habit trackers that penalize you harshly for missed days, Routine Tracker includes non-due days in streaks, lets you balance backlogs flexibly, and gives you deep visibility into your long-term consistency.
 
 ---
 
-## ✨ Key Features & Modern Additions
+## 📑 Table of Contents
+- [📥 Download & Releases](#-download--releases)
+- [🌟 What is RoutineFlow?](#-what-is-routineflow)
+- [✨ Key Features](#-key-features)
+- [📱 Feature Showcase](#-feature-showcase)
+- [🏗️ Architecture & Tech Stack](#️-architecture--tech-stack)
+- [🚀 Building from Source](#-building-from-source)
+- [📜 Attribution & License](#-attribution--license)
 
-### 🎯 1. Habit Insights & Consistency Analytics *(New)*
-* **Rolling Consistency Score**: Real-time calculated consistency rate percentage and dynamic progress indicator for every routine.
-* **Streak Milestone Badges**: Unlock milestones (7-Day Champion, 30-Day Master, 100-Day Legend) as your streaks grow.
-* **Comprehensive Stats**: Track longest streak, current streak, and total completed sessions.
+---
+
+## 📥 Download & Releases
+
+You can install RoutineFlow directly on your Android device without needing the Google Play Store:
+
+### 📦 Latest Release: **[v1.0.0](https://github.com/AizenIndex/RoutineFlow/releases/tag/v1.0.0)**
+
+| File | Type | Download Link |
+| :--- | :--- | :--- |
+| **`RoutineFlow-v1.0.0.apk`** | Android Application Package | [⬇️ **Download APK**](https://github.com/AizenIndex/RoutineFlow/releases/download/v1.0.0/RoutineFlow-v1.0.0.apk) |
+| **Source Code** | Archive (`.zip` / `.tar.gz`) | [📦 **GitHub Release Page**](https://github.com/AizenIndex/RoutineFlow/releases/tag/v1.0.0) |
+
+> **💡 How to Install:**
+> 1. Download `RoutineFlow-v1.0.0.apk` to your Android phone.
+> 2. Open the file from your downloads folder.
+> 3. If prompted, enable *"Install from unknown sources"* for your browser/file manager.
+> 4. Tap **Install** and launch RoutineFlow!
+
+---
+
+## 🌟 What is RoutineFlow?
+
+Most habit trackers punish you harshly with broken streaks whenever life gets in the way. **RoutineFlow** is built on a fundamentally smarter principle: **Adaptive Habit Tracking**.
+
+It combines a clean calendar agenda with an intelligent scheduling engine that understands real human life. Whether you track habits daily, 3 times a week on flexible days, or monthly goals, RoutineFlow accounts for non-due days, allows you to clear backlogs flexibly, and gives you deep visibility into your long-term consistency.
+
+---
+
+## ✨ Key Features
+
+### 📊 1. Consistency Analytics & Streak Milestones *(New)*
+- **Rolling Consistency Score**: Real-time calculated consistency rate percentage and animated progress indicator for every habit.
+- **Streak Milestone Badges**: Unlock milestones as your consistency builds:
+  - 🥉 **7-Day Bronze Champion**
+  - 🥈 **30-Day Silver Master**
+  - 🥇 **100-Day Gold Legend**
+- **Comprehensive Statistics**: Detailed breakdown of active streaks, longest historical streak, and total completed sessions.
 
 ### 🎆 2. Habit Completion Celebrations *(New)*
-* **Micro-Interaction Burst Effects**: Fluid, particle celebration animations when checking off tasks in your agenda.
-* **Satisfying Feedback**: Visual delight designed to build positive dopamine reinforcement loops for daily habits.
+- **Micro-Interaction Particle FX**: 60-FPS fluid particle burst celebration when checking off routines in your daily agenda.
+- **Dopamine-Positive Feedback**: Instant visual reward designed to build positive habit loops.
 
-### 🔄 3. Adaptive & Flexible Schedules
-* **Auto-adjusting backlog**: Miss a routine? The app intelligently suggests clearing backlogs on the next non-due day. Over-complete? The next planned session automatically balances out.
-* **Flexible frequencies**: Daily, weekly (e.g. 3x/week on any day or specific days), monthly, and alternate-day cycles.
+### 🔄 3. Adaptive Scheduling Engine
+- **Intelligent Backlog Management**: Missed a habit? RoutineFlow suggests resolving your backlog on the next non-due day without breaking your streak.
+- **Over-Completion Balancing**: Completed a routine ahead of schedule? Next planned sessions automatically balance out.
+- **Flexible Frequencies**: Full support for daily, weekly (any days or specific days of week), monthly, and alternate-day intervals.
 
 ### 📅 4. Agenda & Calendar Integration
-* **Visual Agenda**: Clean, distraction-free agenda for any date.
-* **Long-term Planning**: Routine calendar displaying completions, streaks, and upcoming schedules to easily plan ahead.
+- **Clean Agenda View**: Distraction-free daily task lists for any selected date.
+- **Long-term Planning Calendar**: Visual calendar displaying completions, streaks, and future planning dates.
 
-### 🎨 5. Modern UI & Privacy First
-* **Material You & Dark Mode**: Dynamic theme colors on Android 12+ and high-contrast dark theme.
-* **100% Offline & Private**: Zero tracking, zero telemetry, zero external accounts. Your data never leaves your device.
-* **Completely Free**: No ads, no paywalls, and open-source under GPL v3.
+### 🎨 5. Modern Jetpack Compose UI
+- **Material You Design**: Full Material 3 theming with dynamic color palette support on Android 12+.
+- **Pure Dark Mode**: Sleek dark slate and OLED high-contrast aesthetics.
+- **Landscape & Tablet Support**: Optimized multi-column layout for tablets and landscape mode.
+
+### 🔒 6. 100% Offline & Private
+- **Zero Tracking**: No telemetry, no third-party analytics, no tracking SDKs.
+- **No Account Required**: Works completely offline. Your confidential habit data never leaves your device.
+- **100% Free**: No subscriptions, no ads, and fully open-source under GPL v3.
+
+---
+
+## 📱 Feature Showcase
+
+| Agenda View | Flexible Schedules | Habit Customization |
+| :---: | :---: | :---: |
+| ![](images/readme/feature_view_agenda_for_any_date.png) | ![](images/readme/feature_choose_the_best_schedule.png) | ![](images/readme/feature_customize_as_you_want.png) |
+| *Clean daily agenda with dynamic calendar bar* | *Adaptive weekly, monthly, and daily rules* | *Personalized targets, streak goals, and notifications* |
 
 ---
 
 ## 🏗️ Architecture & Tech Stack
 
-This project is built using modern Android best practices following CLEAN Architecture and modularization principles (inspired by Google's *Now In Android*):
+RoutineFlow is engineered following Google's **Now In Android** modularization standards and **CLEAN Architecture** principles:
 
-* **UI Layer**: 100% Jetpack Compose with Material 3, Single Activity, zero legacy Fragments.
-* **State Management**: StateFlow, ViewModel, and unidirectional data flow (UDF).
-* **Dependency Injection**: [Koin](https://insert-koin.io/) (configured for seamless future Kotlin Multiplatform expansion).
-* **Database**: [SQLDelight](https://cashapp.github.io/sqldelight/) for local SQLite storage.
-* **Date & Time**: `kotlinx-datetime` and `kizitonwose/Calendar`.
-* **Modularization**: Multi-module Gradle build with custom convention plugins in `build-logic`.
+```mermaid
+graph TD
+    App[":app Application Module"] --> FeatureAgenda[":feature:agenda"]
+    App --> FeatureDetails[":feature:routinedetails"]
+    App --> FeatureAddEdit[":feature:addeditroutine"]
+    
+    FeatureAgenda --> CoreUI[":core:ui"]
+    FeatureAgenda --> CoreDomain[":core:domain"]
+    FeatureDetails --> CoreUI
+    FeatureDetails --> CoreDomain
+    FeatureAddEdit --> CoreUI
+    FeatureAddEdit --> CoreDomain
+    
+    CoreDomain --> CoreData[":core:data"]
+    CoreDomain --> CoreLogic[":core:logic"]
+    CoreDomain --> CoreModel[":core:model"]
+    
+    CoreData --> CoreDatabase[":core:database (SQLDelight)"]
+    CoreData --> CoreModel
+```
 
----
-
-## 📜 Original Creator & Attribution
-
-> [!IMPORTANT]  
-> This project is a modernized fork and continuation based on the excellent work of **[Daniel Rendox](https://github.com/DanielRendox)** on [RoutineTracker](https://github.com/DanielRendox/RoutineTracker).  
-> Original repository: [https://github.com/DanielRendox/RoutineTracker](https://github.com/DanielRendox/RoutineTracker)  
-> All modifications, improvements, and new features remain free and open-source under the **GNU General Public License v3 (GPL v3)**.
+### Core Technologies:
+* **UI**: 100% [Jetpack Compose](https://developer.android.com/jetpack/compose) with Material 3 (Single Activity, zero Fragments).
+* **Architecture**: MVVM + CLEAN with Repository and Use-Case patterns.
+* **Dependency Injection**: [Koin](https://insert-koin.io/) (configured for seamless Kotlin Multiplatform expansion).
+* **Database**: [SQLDelight](https://cashapp.github.io/sqldelight/) for local SQLite storage with Flow extensions.
+* **Asynchronous Streams**: Kotlin Coroutines & `StateFlow`.
+* **Date & Time Engine**: `kotlinx-datetime` and `com.kizitonwose.calendar`.
+* **Build System**: Gradle multi-module build with custom convention plugins in `build-logic`.
 
 ---
 
 ## 🚀 Building from Source
 
-1. Clone this repository:
+### Prerequisites:
+- **Android Studio**: Koala / Ladybug (2024.1+) or newer
+- **JDK**: Java 17 or Java 21
+- **Android SDK**: API level 34+ (minSdk 26)
+
+### Steps:
+1. **Clone the repository:**
    ```bash
-   git clone <YOUR_REPOSITORY_URL>
+   git clone https://github.com/AizenIndex/RoutineFlow.git
+   cd RoutineFlow
    ```
-2. Open the project in [Android Studio](https://developer.android.com/studio) (Koala Feature Drop or Ladybug recommended).
-3. Build and run the `app` module on an emulator or connected physical Android device (API 21+).
+
+2. **Open in Android Studio:**
+   Open the root project folder in Android Studio and let Gradle sync dependencies.
+
+3. **Build and install debug APK:**
+   ```bash
+   ./gradlew :app:assembleMinSdk26Debug
+   ```
+   The APK binary will be generated at `app/build/outputs/apk/minSdk26/debug/`.
 
 ---
 
-## 📄 License
+## 📜 Attribution & License
 
-This project is licensed under the **GNU General Public License v3.0**. See the [LICENSE](LICENSE) file for details.
+> [!IMPORTANT]  
+> **RoutineFlow** is an open-source evolution and modernized fork based on [RoutineTracker](https://github.com/DanielRendox/RoutineTracker) created by **[Daniel Rendox](https://github.com/DanielRendox)**.  
+> We gratefully acknowledge and credit Daniel Rendox for the foundational scheduling concepts and clean architecture design.
+
+### License
+This project is licensed under the **GNU General Public License v3.0 (GPL v3)**.  
+You are free to use, modify, and distribute this software under the same license. See the [LICENSE](LICENSE) file for complete terms.
