@@ -127,7 +127,7 @@ private fun RoutineCalendarScreenPortrait(
     onDateClick: (LocalDate) -> Unit,
 ) {
     Column(
-        modifier = modifier.verticalScroll(rememberScrollState()),
+        modifier = modifier,
     ) {
         RoutineCalendar(
             modifier = Modifier.padding(bottom = 24.dp),
