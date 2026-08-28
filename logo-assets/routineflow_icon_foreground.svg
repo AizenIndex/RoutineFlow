@@ -1,0 +1,7 @@
+<svg width="108" height="108" viewBox="0 0 108 108" xmlns="http://www.w3.org/2000/svg">
+  <!-- Android adaptive icon foreground layer. Safe zone = 66dp circle centered at 54,54. -->
+  <circle cx="54" cy="54" r="28" fill="none" stroke="#FFFFFF" stroke-width="2.4" opacity="0.30"/>
+  <circle cx="54" cy="54" r="19" fill="none" stroke="#FFFFFF" stroke-width="2.8" opacity="0.62"/>
+  <circle cx="54" cy="54" r="10.5" fill="none" stroke="#FFFFFF" stroke-width="3.2" opacity="0.92"/>
+  <circle cx="54" cy="54" r="4" fill="#FFFFFF"/>
+</svg>

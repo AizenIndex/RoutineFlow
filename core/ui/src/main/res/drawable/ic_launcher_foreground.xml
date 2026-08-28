@@ -1,69 +1,28 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-
-    <!-- Outer Ring (Coral/Sunset) -->
+    <!-- Outer ring r=28 -->
     <path
-        android:pathData="M54,20 A34,34 0 1,1 24,66"
-        android:strokeWidth="5"
-        android:strokeLineCap="round">
-        <aapt:attr name="android:strokeColor">
-            <gradient
-                android:startX="20"
-                android:startY="20"
-                android:endX="88"
-                android:endY="88"
-                android:type="linear">
-                <item android:offset="0.0" android:color="#FFFF512F" />
-                <item android:offset="1.0" android:color="#FFF09819" />
-            </gradient>
-        </aapt:attr>
-    </path>
-
-    <!-- Middle Ring (Indigo/Violet) -->
+        android:pathData="M54,26 A28,28 0 1,0 54,82 A28,28 0 1,0 54,26 Z"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2.4"
+        android:strokeAlpha="0.30" />
+    <!-- Middle ring r=19 -->
     <path
-        android:pathData="M54,28 A26,26 0 1,1 31,65"
-        android:strokeWidth="4.5"
-        android:strokeLineCap="round">
-        <aapt:attr name="android:strokeColor">
-            <gradient
-                android:startX="28"
-                android:startY="28"
-                android:endX="80"
-                android:endY="80"
-                android:type="linear">
-                <item android:offset="0.0" android:color="#FF6366F1" />
-                <item android:offset="1.0" android:color="#FFA855F7" />
-            </gradient>
-        </aapt:attr>
-    </path>
-
-    <!-- Inner Ring (Cyan/Emerald) -->
+        android:pathData="M54,35 A19,19 0 1,0 54,73 A19,19 0 1,0 54,35 Z"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2.8"
+        android:strokeAlpha="0.62" />
+    <!-- Inner ring r=10.5 -->
     <path
-        android:pathData="M54,36 A18,18 0 1,1 38,62"
-        android:strokeWidth="4"
-        android:strokeLineCap="round">
-        <aapt:attr name="android:strokeColor">
-            <gradient
-                android:startX="36"
-                android:startY="36"
-                android:endX="72"
-                android:endY="72"
-                android:type="linear">
-                <item android:offset="0.0" android:color="#FF06B6D4" />
-                <item android:offset="1.0" android:color="#FF10B981" />
-            </gradient>
-        </aapt:attr>
-    </path>
-
-    <!-- Center Clean Checkmark -->
+        android:pathData="M54,43.5 A10.5,10.5 0 1,0 54,64.5 A10.5,10.5 0 1,0 54,43.5 Z"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3.2"
+        android:strokeAlpha="0.92" />
+    <!-- Center core dot r=4 -->
     <path
-        android:pathData="M48,54 L52,58 L61,49"
-        android:strokeWidth="4"
-        android:strokeColor="#FFFFFFFF"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round" />
+        android:pathData="M54,50 A4,4 0 1,0 54,58 A4,4 0 1,0 54,50 Z"
+        android:fillColor="#FFFFFF" />
 </vector>

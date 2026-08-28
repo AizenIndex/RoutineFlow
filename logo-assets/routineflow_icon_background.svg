@@ -1,0 +1,5 @@
+<svg width="108" height="108" viewBox="0 0 108 108" xmlns="http://www.w3.org/2000/svg">
+  <!-- Android adaptive icon background layer. Solid flat fill, no text or fine detail -->
+  <!-- (launchers crop this with circle/squircle/rounded-square masks, so keep it edge-to-edge) -->
+  <rect width="108" height="108" fill="#0E7490"/>
+</svg>
